@@ -12,6 +12,7 @@
 
 	<base>
 		<script name="BetterToolsCookingManager" file="campaign/scripts/kochutensilien/manager_bettertools_cooking.lua" />
+		<script name="BetterToolsBrewingManager" file="campaign/scripts/brauerausruestung/manager_bettertools_brewing.lua" />
 		<includefile source="campaign/record_char_tools.xml" />
 	</base>
 </root>

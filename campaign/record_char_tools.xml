@@ -303,6 +303,193 @@
 		</sheetdata>
 	</windowclass>
 
+	<windowclass name="bettertools_brewing" copy="record_window">
+		<placement>
+			<size width="720" height="820" />
+		</placement>
+		<sheetdata>
+			<sub_content_framed_groupbox name="content">
+				<class>bettertools_brewing_contents</class>
+			</sub_content_framed_groupbox>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_brewing_contents">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "list_iadd", }, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<label_charframetop name="drink_header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="2" />
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+				<icons>forge_item_advgear</icons>
+				<static text="Getr&#228;nke" />
+			</label_charframetop>
+			<button_iadd name="list_iadd">
+				<anchored to="drink_header" position="insidetopright" offset="5,0" />
+				<target>list</target>
+			</button_iadd>
+
+			<list_content_labeled_alternating_top name="list">
+				<anchored height="390">
+					<left offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<datasource>.drinks</datasource>
+				<class>bettertools_brewing_drink</class>
+				<sortby><control>name</control></sortby>
+			</list_content_labeled_alternating_top>
+			<scrollbar_list name="drink_scrollbar" />
+
+			<anchor_list_content_label_left />
+			<anchor_list_content_label_right />
+			<spacer_list_content_button_label_left name="drink_idelete_header" />
+			<spacer_list_content_button_label_left name="spacer_drink" />
+			<spacer_list_content_button_label_left name="spacer_finish" />
+			<label_list_content_number_left name="label_quantity">
+				<anchored width="28" />
+				<static text="#" />
+			</label_list_content_number_left>
+			<label_list_content_number_left name="label_dc">
+				<anchored width="28" />
+				<static text="DC" />
+			</label_list_content_number_left>
+			<label_list_content_number_right name="label_malus">
+				<anchored width="38" />
+				<static text="Malus" />
+			</label_list_content_number_right>
+			<label_list_content_number_right name="label_bonus">
+				<anchored width="38" />
+				<static text="Bonus" />
+			</label_list_content_number_right>
+			<label_list_content_noframe name="label_name">
+				<static text="Getr&#228;nk" />
+			</label_list_content_noframe>
+
+			<ft_content_noframe_noscroll_top name="text">
+				<anchored>
+					<top parent="list" anchor="bottom" relation="relative" offset="26" postoffset="0" />
+				</anchored>
+			</ft_content_noframe_noscroll_top>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_brewing_drink">
+		<placement>
+			<size width="650" height="86" />
+		</placement>
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/brauerausruestung/bettertools_brewing_drink.lua" />
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<button_listitem_idelete_left name="idelete" />
+			<spacer_listitem_idelete_left name="idelete_spacer" />
+			<button_listitem_roll_left name="drink_button">
+				<tooltip text="Davon trinken und Konstitutionsrettungswurf ablegen" />
+				<script>
+					function onButtonPress()
+						window.drink();
+					end
+				</script>
+			</button_listitem_roll_left>
+			<button_listitem_roll_left name="finish_button">
+				<tooltip text="Getr&#228;nk verbrauchen und Trinkstatus zur&#252;cksetzen" />
+				<script>
+					function onButtonPress()
+						window.finishDrink();
+					end
+				</script>
+			</button_listitem_roll_left>
+			<number_listitem_left name="quantity">
+				<anchored width="28" />
+				<min value="0" />
+				<nodrag />
+			</number_listitem_left>
+			<number_listitem_left name="dc">
+				<anchored width="28" />
+				<readonly />
+				<nodrag />
+			</number_listitem_left>
+
+			<number_listitem_right name="maluslevel">
+				<anchored width="38" />
+				<min value="0" />
+				<max value="6" />
+			</number_listitem_right>
+			<number_listitem_right name="bonuslevel">
+				<anchored width="38" />
+				<min value="0" />
+				<max value="5" />
+			</number_listitem_right>
+
+			<stringu name="name">
+				<anchored to="rightanchor" height="20">
+					<top />
+					<left parent="leftanchor" relation="current" offset="5" />
+					<right parent="bonuslevel" anchor="left" offset="-5" />
+				</anchored>
+				<delaykeyupdate />
+				<nodrag />
+			</stringu>
+
+			<label name="bonus_choices_label">
+				<anchored to="name" height="20">
+					<top offset="22" />
+					<left />
+					<right offset="-500" />
+				</anchored>
+				<static text="Bonus" />
+			</label>
+			<button_listitem_checkbox_base name="b2_str"><anchored to="bonus_choices_label" position="righthigh" offset="5,0" /><tooltip text="Bonus 2: Vorteil auf St&#228;rkew&#252;rfe" /><script>function onValueChanged() window.onChoiceChanged(); end</script></button_listitem_checkbox_base>
+			<label name="b2_str_label"><anchored to="b2_str" position="righthigh" offset="2,0" width="55" height="20" /><static text="STR" /></label>
+			<button_listitem_checkbox_base name="b2_resist"><anchored to="b2_str_label" position="righthigh" offset="5,0" /><tooltip text="Bonus 2: Resistenz gegen Wuchtschaden" /><script>function onValueChanged() window.onChoiceChanged(); end</script></button_listitem_checkbox_base>
+			<label name="b2_resist_label"><anchored to="b2_resist" position="righthigh" offset="2,0" width="55" height="20" /><static text="Wucht" /></label>
+			<button_listitem_checkbox_base name="b2_cha"><anchored to="b2_resist_label" position="righthigh" offset="5,0" /><tooltip text="Bonus 2: Vorteil auf Charismaw&#252;rfe" /><script>function onValueChanged() window.onChoiceChanged(); end</script></button_listitem_checkbox_base>
+			<label name="b2_cha_label"><anchored to="b2_cha" position="righthigh" offset="2,0" width="55" height="20" /><static text="CHA" /></label>
+			<button_listitem_checkbox_base name="b4_str"><anchored to="b2_cha_label" position="righthigh" offset="5,0" /><tooltip text="Bonus 4: Vorteil auf St&#228;rkerettungsw&#252;rfe" /><script>function onValueChanged() window.onChoiceChanged(); end</script></button_listitem_checkbox_base>
+			<label name="b4_str_label"><anchored to="b4_str" position="righthigh" offset="2,0" width="55" height="20" /><static text="STR SAV" /></label>
+			<button_listitem_checkbox_base name="b4_con"><anchored to="b4_str_label" position="righthigh" offset="5,0" /><tooltip text="Bonus 4: Vorteil auf Konstitutionsrettungsw&#252;rfe" /><script>function onValueChanged() window.onChoiceChanged(); end</script></button_listitem_checkbox_base>
+			<label name="b4_con_label"><anchored to="b4_con" position="righthigh" offset="2,0" width="55" height="20" /><static text="CON SAV" /></label>
+			<button_listitem_checkbox_base name="b4_cha"><anchored to="b4_con_label" position="righthigh" offset="5,0" /><tooltip text="Bonus 4: Vorteil auf Charismarettungsw&#252;rfe" /><script>function onValueChanged() window.onChoiceChanged(); end</script></button_listitem_checkbox_base>
+			<label name="b4_cha_label"><anchored to="b4_cha" position="righthigh" offset="2,0" width="55" height="20" /><static text="CHA SAV" /></label>
+
+			<label name="malus_choices_label">
+				<anchored to="name" height="20">
+					<top offset="44" />
+					<left />
+					<right offset="-500" />
+				</anchored>
+				<static text="Malus" />
+			</label>
+			<button_listitem_checkbox_base name="m2_init"><anchored to="malus_choices_label" position="righthigh" offset="5,0" /><tooltip text="Malus 2: -5 auf Initiative" /><script>function onValueChanged() window.onChoiceChanged(); end</script></button_listitem_checkbox_base>
+			<label name="m2_init_label"><anchored to="m2_init" position="righthigh" offset="2,0" width="55" height="20" /><static text="INIT" /></label>
+			<button_listitem_checkbox_base name="m2_atk"><anchored to="m2_init_label" position="righthigh" offset="5,0" /><tooltip text="Malus 2: -1 auf Angriffsw&#252;rfe" /><script>function onValueChanged() window.onChoiceChanged(); end</script></button_listitem_checkbox_base>
+			<label name="m2_atk_label"><anchored to="m2_atk" position="righthigh" offset="2,0" width="55" height="20" /><static text="ATK" /></label>
+			<button_listitem_checkbox_base name="m2_ac"><anchored to="m2_atk_label" position="righthigh" offset="5,0" /><tooltip text="Malus 2: -1 auf R&#252;stungsklasse" /><script>function onValueChanged() window.onChoiceChanged(); end</script></button_listitem_checkbox_base>
+			<label name="m2_ac_label"><anchored to="m2_ac" position="righthigh" offset="2,0" width="55" height="20" /><static text="AC" /></label>
+			<button_listitem_checkbox_base name="m4_dex"><anchored to="m2_ac_label" position="righthigh" offset="5,0" /><tooltip text="Malus 4: Nachteil auf Geschicklichkeitsrettungsw&#252;rfe" /><script>function onValueChanged() window.onChoiceChanged(); end</script></button_listitem_checkbox_base>
+			<label name="m4_dex_label"><anchored to="m4_dex" position="righthigh" offset="2,0" width="55" height="20" /><static text="DEX SAV" /></label>
+			<button_listitem_checkbox_base name="m4_int"><anchored to="m4_dex_label" position="righthigh" offset="5,0" /><tooltip text="Malus 4: Nachteil auf Intelligenzrettungsw&#252;rfe" /><script>function onValueChanged() window.onChoiceChanged(); end</script></button_listitem_checkbox_base>
+			<label name="m4_int_label"><anchored to="m4_int" position="righthigh" offset="2,0" width="55" height="20" /><static text="INT SAV" /></label>
+			<button_listitem_checkbox_base name="m4_wis"><anchored to="m4_int_label" position="righthigh" offset="5,0" /><tooltip text="Malus 4: Nachteil auf Weisheitsrettungsw&#252;rfe" /><script>function onValueChanged() window.onChoiceChanged(); end</script></button_listitem_checkbox_base>
+			<label name="m4_wis_label"><anchored to="m4_wis" position="righthigh" offset="2,0" width="55" height="20" /><static text="WIS SAV" /></label>
+		</sheetdata>
+	</windowclass>
+
 	<windowclass name="charsheet" merge="join">
 		<tab merge="add" insertbefore="abilities">
 			<name>tools</name>

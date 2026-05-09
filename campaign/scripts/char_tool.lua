@@ -35,6 +35,10 @@ function openToolLink()
 		self.openCookingToolWindow();
 		return;
 	end
+	if StringManager.trim(name.getValue()) == "Brauerausrüstung" then
+		self.openBrewingToolWindow();
+		return;
+	end
 
 	local nodeItem = RecordManager.findRecordByStringI("item", "name", name.getValue());
 	if nodeItem then
@@ -51,6 +55,15 @@ function openCookingToolWindow()
 	DB.setValue(nodeCooking, "name", "string", "Kochutensilien");
 	DB.setValue(nodeCooking, "text", "formattedtext", self.getCookingToolText());
 	Interface.openWindow("bettertools_cooking", nodeCooking);
+end
+
+function openBrewingToolWindow()
+	local nodeTool = getDatabaseNode();
+	local nodeChar = DB.getChild(nodeTool, "...");
+	local nodeBrewing = DB.createChild(nodeChar, "bettertools.brewing");
+	DB.setValue(nodeBrewing, "name", "string", "Brauerausrüstung");
+	DB.setValue(nodeBrewing, "text", "formattedtext", self.getBrewingToolText());
+	Interface.openWindow("bettertools_brewing", nodeBrewing);
 end
 
 function encodeXML(s)
@@ -123,6 +136,98 @@ function getCookingToolText()
 </formattedtext>]];
 end
 
+function getBrewingToolText()
+	return [[<formattedtext>
+<h>Brauerausrüstung</h>
+<p><i>Genutztes Attribut: Keines</i></p>
+<p>Mit Brauerausrüstung kannst du Bier, Wein, Met und andere alkoholische Getränke und Spirituosen zubereiten. Jeder Becher verleiht dem Trinker bestimmte Vorteile, aber womöglich auch Nachteile. Je mehr getrunken wird, umso höher die Chance auf Boni, aber gleichzeitig steigt das Risiko, negative Effekte zu erhalten.</p>
+<p>Brauerausrüstung enthält einige große Krüge, einen Siphon und mehrere Meter Schlauch, außerdem Hopfen, Trauben oder andere Fermentierungsgrundlagen deiner Wahl. Sie wiegt 9 Pfund und kostet 20 Gold.</p>
+<h>Fertigkeiten</h>
+<p><b>Geschichte.</b> Übung mit Brauerausrüstung gibt zusätzliche Informationen bei Geschichtswürfen bezüglich historischen Ereignissen, bei denen Alkohol eine tragende Rolle gespielt hat.</p>
+<p><b>Heilkunde.</b> Du weißt, wie man mit Alkoholvergiftungen umgeht und kannst Alkohol benutzen, um Schmerzen zu lindern.</p>
+<p><b>Überzeugen.</b> Ein gutes Getränk macht auch die härtesten Herzen weicher. Übung mit Brauerausrüstung erlaubt es dir, dein Gegenüber mittels eines Getränks zu bearbeiten, sodass sie gerade so viel Alkohol zu sich nimmt, um ihre Laune zu heben.</p>
+<h>Brauen</h>
+<p>Jedes Getränk braucht 2 Pfund an Rohstoffen, die zu Maische verarbeitet werden. Diese Rohstoffe kannst du in den meisten Läden und jeder Taverne für jeweils 5 Silber kaufen.</p>
+<p>Für jedes Getränk, das du brauen möchtest, benötigst du mindestens 1 Stunde Zeit. Brauen zählt nicht als anstrengende Aktivität, weswegen du es auch während einer Kurzen Rast tun und trotzdem deren Effekte erhalten kannst.</p>
+<h>Trinken</h>
+<p>Jedes Mal wenn ein Charakter trinkt, legt er einen Konstitutionsrettungswurf ab. Der Grund-SG ist 10. Zusätzliche ausgewählte Effekte auf Stufe 2 oder 4 erhöhen den SG jeweils um +5.</p>
+<table>
+<tr><td><b>Kritischer Erfolg</b></td><td>3 Boni, 1 Malus</td></tr>
+<tr><td><b>Erfolg</b></td><td>2 Boni, 1 Malus</td></tr>
+<tr><td><b>Misserfolg</b></td><td>1 Bonus, 2 Mali</td></tr>
+<tr><td><b>Kritischer Misserfolg</b></td><td>1 Bonus, 3 Mali</td></tr>
+</table>
+<p>Wenn der Charakter aufhört, bewusstlos wird oder anderweitig am Trinken gehindert wird, gilt das Getränk als verbraucht. Ein Getränk zu trinken, ernährt den Charakter für einen Tag.</p>
+<h>Effektstufen</h>
+<table>
+	<thead>
+		<tr>
+			<td><b>Boni / Mali</b></td>
+			<td colspan="3"><b>Effekte</b></td>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td><b>Bonus 5</b></td>
+			<td colspan="3">Vorteil auf Angriffswürfe</td>
+		</tr>
+		<tr>
+			<td><b>Bonus 4</b></td>
+			<td>Vorteil auf Stärkerettungswürfe</td>
+			<td>Vorteil auf Konstitutionsrettungswürfe</td>
+			<td>Vorteil auf Charismarettungswürfe</td>
+		</tr>
+		<tr>
+			<td><b>Bonus 3</b></td>
+			<td colspan="3">Kritische Treffer geschehen ab einem Würfelergebnis von 18</td>
+		</tr>
+		<tr>
+			<td><b>Bonus 2</b></td>
+			<td>Vorteil auf Stärkewürfe</td>
+			<td>Resistenz gegen Wuchtschaden</td>
+			<td>Vorteil auf Charismawürfe</td>
+		</tr>
+		<tr>
+			<td><b>Bonus 1</b></td>
+			<td colspan="3">Temporäre TP in Höhe deines Übungsbonus x 5</td>
+		</tr>
+		<tr>
+			<td><b>Neutral</b></td>
+			<td colspan="3"></td>
+		</tr>
+		<tr>
+			<td><b>Malus 1</b></td>
+			<td colspan="3">Die Hemmschwelle deines Charakters sinkt (hat lediglich Auswirkungen auf das Roleplay)</td>
+		</tr>
+		<tr>
+			<td><b>Malus 2</b></td>
+			<td>Malus von -5 auf Initiativewürfe</td>
+			<td>Malus von -1 auf Angriffswürfe</td>
+			<td>Malus von -1 auf Rüstungsklasse</td>
+		</tr>
+		<tr>
+			<td><b>Malus 3</b></td>
+			<td colspan="3">Nachteil auf Geschicklichkeits-, Intelligenz- und Weisheitswürfe.</td>
+		</tr>
+		<tr>
+			<td><b>Malus 4</b></td>
+			<td>Nachteil auf Geschicklichkeitsrettungswürfe</td>
+			<td>Nachteil auf Intelligenzrettungswürfe</td>
+			<td>Nachteil auf Weisheitsrettungswürfe</td>
+		</tr>
+		<tr>
+			<td><b>Malus 5</b></td>
+			<td colspan="3">Malus auf Bewegungsrate von -10</td>
+		</tr>
+		<tr>
+			<td><b>Malus 6</b></td>
+			<td colspan="3">Dein Charakter wird für 1W4 Stunden bewusstlos und startet danach bei Malus 2 und ohne Bonus</td>
+		</tr>
+	</tbody>
+</table>
+</formattedtext>]];
+end
+
 function action(draginfo)
 	local nodeTool = getDatabaseNode();
 	local nodeChar = DB.getChild(nodeTool, "...");
@@ -130,3 +235,4 @@ function action(draginfo)
 	ActionSkill.performRoll(draginfo, rActor, nodeTool);
 	return true;
 end
+
