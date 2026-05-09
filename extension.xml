@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<root version="3.0" release="1">
+	<properties>
+		<name>BetterTools</name>
+		<version>1</version>
+		<author>SchonWer</author>
+		<description>Adds a Tools tab to the 5E character sheet for tool proficiencies.</description>
+		<ruleset>
+			<name>5E</name>
+		</ruleset>
+	</properties>
+
+	<base>
+		<script name="BetterToolsCookingManager" file="campaign/scripts/kochutensilien/manager_bettertools_cooking.lua" />
+		<includefile source="campaign/record_char_tools.xml" />
+	</base>
+</root>

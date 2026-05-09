@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<root>
+	<windowclass name="bettertools_cooking" copy="record_window">
+		<placement>
+			<size width="620" height="760" />
+		</placement>
+		<sheetdata>
+			<sub_content_framed_groupbox name="content">
+				<class>bettertools_cooking_contents</class>
+			</sub_content_framed_groupbox>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_cooking_contents">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "list_iadd", "ingredient_idelete_header", }, bReadOnly);
+			end
+			function cookSelectedIngredients()
+				local tIngredients = {};
+				local tRarityCount = {};
+
+				for _, w in pairs(list.getWindows()) do
+					if w.use and w.use.getValue() == 1 then
+						local sName = StringManager.trim(w.name.getValue());
+						local sRarity = w.rarity.getValue();
+						local nEffectNo = w.effectno.getValue();
+						local nQuantity = w.quantity.getValue();
+
+						if sName == "" then
+							ChatManager.SystemMessage("BetterTools: Eine ausgew&#228;hlte Zutat hat keinen Namen.");
+							return;
+						end
+						if sRarity == "" then
+							ChatManager.SystemMessage("BetterTools: " .. sName .. " hat keine Seltenheit.");
+							return;
+						end
+						if nQuantity &lt;= 0 then
+							ChatManager.SystemMessage("BetterTools: " .. sName .. " ist nicht mehr vorhanden.");
+							return;
+						end
+						if nEffectNo &lt;= 0 then
+							ChatManager.SystemMessage("BetterTools: " .. sName .. " hat noch keinen bekannten Effekt.");
+							return;
+						end
+						local tEffect = BetterToolsCookingManager.getEffectData(sRarity, nEffectNo);
+						local sEffectText = StringManager.trim(tEffect.text or "");
+						local sEffectCode = StringManager.trim(tEffect.code or "");
+						if sEffectText == "" then
+							ChatManager.SystemMessage("BetterTools: F&#252;r " .. sName .. " wurde in der passenden Effekt-Tabelle kein Effekt gefunden.");
+							return;
+						end
+						w.effecttext.setValue(sEffectText);
+						w.effectcode.setValue(sEffectCode);
+
+						tRarityCount[sRarity] = (tRarityCount[sRarity] or 0) + 1;
+						table.insert(tIngredients, {
+							window = w,
+							name = sName,
+							rarity = sRarity,
+							effectno = nEffectNo,
+							quantity = nQuantity,
+							effecttext = sEffectText,
+							effectcode = sEffectCode,
+						});
+					end
+				end
+
+				if #tIngredients &lt; 2 or #tIngredients > 3 then
+					ChatManager.SystemMessage("BetterTools: W&#228;hle 2 bis 3 Zutaten zum Kochen aus.");
+					return;
+				end
+				for _, nCount in pairs(tRarityCount) do
+					if nCount > 2 then
+						ChatManager.SystemMessage("BetterTools: Maximal zwei Zutaten desselben Seltenheitsgrades sind erlaubt.");
+						return;
+					end
+				end
+				for _, tIngredient in ipairs(tIngredients) do
+					tIngredient.window.quantity.setValue(tIngredient.quantity - 1);
+					tIngredient.window.use.setValue(0);
+				end
+
+				local tRarityLabels = {
+					common = "Gew&#246;hnlich",
+					rare = "Selten",
+					veryrare = "Sehr selten",
+				};
+				local tLines = {};
+				table.insert(tLines, "kocht ein Gericht mit:");
+				for _, tIngredient in ipairs(tIngredients) do
+					local sLine = "- " .. tIngredient.name .. " (" .. (tRarityLabels[tIngredient.rarity] or tIngredient.rarity);
+					if tIngredient.effectno > 0 then
+						sLine = sLine .. ", Effekt " .. tIngredient.effectno;
+					end
+					sLine = sLine .. ")";
+					if tIngredient.effecttext ~= "" then
+						sLine = sLine .. ": " .. tIngredient.effecttext;
+					else
+						sLine = sLine .. ": Effekt noch nicht notiert.";
+					end
+					if tIngredient.effectcode ~= "" then
+						sLine = sLine .. "\r  FG-Code: " .. tIngredient.effectcode;
+					end
+					table.insert(tLines, sLine);
+				end
+				table.insert(tLines, "");
+				table.insert(tLines, "Dauer: 24 Stunden oder bis zur n&#228;chsten Langen Rast.");
+				table.insert(tLines, "Eine Kreatur kann nur von einem Gericht gleichzeitig profitieren.");
+
+				local nodeChar = DB.getChild(getDatabaseNode(), "...");
+				local rActor = ActorManager.resolveActor(nodeChar);
+				local tTargets = TargetingManager.getFullTargets(rActor);
+				local nApplied = 0;
+				if #tTargets > 0 then
+					for _, rTarget in ipairs(tTargets) do
+						for _, tIngredient in ipairs(tIngredients) do
+							if tIngredient.effectcode ~= "" then
+								for _, sEffectCode in ipairs(StringManager.split(tIngredient.effectcode, ";", true)) do
+									sEffectCode = StringManager.trim(sEffectCode);
+									if sEffectCode ~= "" then
+										EffectManager.addEffectByTable(rTarget, {
+											sName = sEffectCode,
+											sSource = ActorManager.getCTNodeName(rActor),
+											sExpiration = "restlong",
+										});
+										nApplied = nApplied + 1;
+									end
+								end
+							end
+						end
+					end
+					table.insert(tLines, "");
+					table.insert(tLines, "Angewendete Effekte: " .. nApplied .. " auf " .. #tTargets .. " Ziel(e).");
+				else
+					table.insert(tLines, "");
+					table.insert(tLines, "Keine Ziele anvisiert; Effekte wurden nicht automatisch angewendet.");
+				end
+				local msg = ChatManager.createBaseMessage(rActor);
+				msg.text = table.concat(tLines, "\r");
+				Comm.deliverChatMessage(msg);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<label_charframetop name="ingredient_header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="2" />
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+				<icons>forge_item_advgear</icons>
+				<static text="Bekannte Zutaten" />
+			</label_charframetop>
+			<button_iadd name="list_iadd">
+				<anchored to="ingredient_header" position="insidetopright" offset="5,0" />
+				<target>list</target>
+			</button_iadd>
+			<button_text name="cook_button">
+				<anchored to="ingredient_header" position="insidetopleft" offset="5,0" width="70" height="20" />
+				<state text="Kochen" />
+				<script>
+					function onButtonPress()
+						window.cookSelectedIngredients();
+					end
+				</script>
+			</button_text>
+
+			<list_content_labeled_alternating_top name="list">
+				<anchored height="420">
+					<left offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<datasource>.ingredients</datasource>
+				<class>bettertools_cooking_ingredient</class>
+				<sortby>
+					<control>sort_rarity</control>
+					<control>effectno</control>
+					<control>name</control>
+				</sortby>
+			</list_content_labeled_alternating_top>
+			<scrollbar_list name="ingredient_scrollbar" />
+
+			<anchor_list_content_label_left />
+			<anchor_list_content_label_right />
+			<spacer_list_content_idelete_label_left name="ingredient_idelete_header" />
+			<spacer_list_content_button_checkbox_label_left name="spacer_use" />
+			<label_list_content_number_left name="label_quantity">
+				<anchored width="28" />
+				<static text="#" />
+			</label_list_content_number_left>
+			<spacer_list_content_button_label_left name="spacer_discover" />
+			<label_list_content_number_right name="label_effectno">
+				<anchored width="40" />
+				<static text="Effekt" />
+			</label_list_content_number_right>
+			<label_list_content_string_right name="label_rarity">
+				<anchored width="95" />
+				<static text="Seltenheit" />
+			</label_list_content_string_right>
+			<label_list_content_noframe name="label_name">
+				<static text="Zutat / Effekt" />
+			</label_list_content_noframe>
+
+			<ft_content_noframe_noscroll_top name="text">
+				<anchored>
+					<top parent="list" anchor="bottom" relation="relative" offset="26" postoffset="0" />
+				</anchored>
+			</ft_content_noframe_noscroll_top>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_cooking_ingredient">
+		<placement>
+			<size width="450" height="46" />
+		</placement>
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/kochutensilien/bettertools_cooking_ingredient.lua" />
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+			<numbercontrol name="sort_rarity">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+			</numbercontrol>
+
+			<button_listitem_idelete_left name="idelete" />
+			<spacer_listitem_idelete_left name="idelete_spacer" />
+			<button_listitem_checkbox_left name="use">
+				<tooltip text="F&#252;r das Gericht verwenden" />
+			</button_listitem_checkbox_left>
+			<number_listitem_left name="quantity">
+				<anchored width="28" />
+				<min value="0" />
+				<nodrag />
+			</number_listitem_left>
+			<button_listitem_roll_left name="discover">
+				<tooltip text="Effekt ausw&#252;rfeln" />
+				<script>
+					function onButtonPress()
+						window.rollEffect();
+					end
+				</script>
+			</button_listitem_roll_left>
+
+			<number_listitem_right name="effectno">
+				<anchored width="40" />
+				<min value="0" />
+				<max value="20" />
+				<hideonvalue value="0" />
+				<script>
+					function onValueChanged()
+						window.onEffectNoChanged();
+					end
+				</script>
+			</number_listitem_right>
+
+			<button_stringcycler name="rarity">
+				<anchored to="rightanchor" width="95" height="20">
+					<top />
+					<right relation="relative" offset="-50" postoffset="-50" />
+				</anchored>
+				<parameters>
+					<defaultlabel>-</defaultlabel>
+					<labels>Gew&#246;hnlich|Selten|Sehr selten</labels>
+					<values>common|rare|veryrare</values>
+				</parameters>
+				<script>
+					function onValueChanged()
+						window.onRarityChanged();
+					end
+				</script>
+			</button_stringcycler>
+
+			<stringu name="name">
+				<anchored to="rightanchor" height="20">
+					<top />
+					<left parent="leftanchor" relation="current" offset="5" />
+					<right parent="rarity" anchor="left" offset="-5" />
+				</anchored>
+				<delaykeyupdate />
+				<nodrag />
+			</stringu>
+			<stringu name="effecttext">
+				<anchored to="rightanchor" height="20">
+					<top offset="22" />
+					<left parent="leftanchor" relation="current" offset="5" />
+					<right parent="rarity" anchor="left" offset="-5" />
+				</anchored>
+				<delaykeyupdate />
+				<nodrag />
+			</stringu>
+			<stringfield name="effectcode">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+			</stringfield>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charsheet" merge="join">
+		<tab merge="add" insertbefore="abilities">
+			<name>tools</name>
+			<text>Tools</text>
+			<class>charsheet_tools</class>
+		</tab>
+	</windowclass>
+
+	<windowclass name="charsheet_tools">
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<sub_content_framed_groupbox name="content">
+				<class>charsheet_tools_contents</class>
+			</sub_content_framed_groupbox>
+			<scrollbar_content />
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="charsheet_tools_contents">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "list_iadd", "idelete_header", }, bReadOnly);
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<label_charframetop name="header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="2" postoffset="2" />
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+				<icons>forge_item_tool</icons>
+				<static text="Tools" />
+			</label_charframetop>
+
+			<button_iadd name="list_iadd">
+				<anchored to="header" position="insidetopright" offset="5,0" />
+				<target>list</target>
+			</button_iadd>
+
+			<list_content_labeled_alternating_top name="list">
+				<anchored>
+					<left offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<datasource>.toollist</datasource>
+				<class>char_tool_item</class>
+				<sortby><control>name</control></sortby>
+				<script file="campaign/scripts/char_toollist.lua" />
+			</list_content_labeled_alternating_top>
+
+			<anchor_list_content_label_left />
+			<anchor_list_content_label_right />
+			<spacer_list_content_idelete_label_left name="idelete_header" />
+			<spacer_list_content_link_label_left name="spacer_link" />
+			<spacer_list_content_button_label_left name="spacer_prof" />
+			<label_list_content_number_right name="label_total">
+				<anchored width="40" />
+				<static textres="char_label_skilltotal" />
+			</label_list_content_number_right>
+			<spacer_list_content_button_label_right name="spacer_roll" />
+			<spacer_list_content_label_right name="spacer">
+				<anchored width="10" />
+			</spacer_list_content_label_right>
+			<label_list_content_number_right name="label_misc">
+				<anchored width="40" />
+				<static textres="char_label_skillmisc" />
+			</label_list_content_number_right>
+			<label_list_content_string_right name="label_stat">
+				<anchored width="30" />
+				<static textres="char_label_skillstat" />
+			</label_list_content_string_right>
+			<label_list_content_noframe name="label_name">
+				<static text="Tool" />
+			</label_list_content_noframe>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="char_tool_item">
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/char_tool.lua" />
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<button_listitem_idelete_left name="idelete" />
+			<spacer_listitem_idelete_left name="idelete_spacer" />
+
+			<button_listitem_left name="shortcut">
+				<icon normal="button_link" />
+				<script>
+					function onButtonPress()
+						window.openToolLink();
+					end
+				</script>
+			</button_listitem_left>
+
+			<button_skillprof name="prof">
+				<tabtarget next="name" />
+			</button_skillprof>
+
+			<number_charskilltotal name="total" />
+
+			<button_listitem_roll_right name="button_roll">
+				<script>
+					function onDragStart(button, x, y, draginfo)
+						return window.action(draginfo);
+					end
+					function onButtonPress()
+						return window.action();
+					end
+				</script>
+			</button_listitem_roll_right>
+
+			<spacer_listitem_right name="spacer">
+				<anchored width="10" />
+			</spacer_listitem_right>
+			<number_charskill name="misc">
+				<tabtarget prev="stat" />
+			</number_charskill>
+			<cycler_charskillability name="stat">
+				<tabtarget next="misc" prev="name" />
+			</cycler_charskillability>
+
+			<string_listitem_center_underline name="name">
+				<tabtarget next="stat" prev="prof" />
+			</string_listitem_center_underline>
+		</sheetdata>
+	</windowclass>
+</root>
