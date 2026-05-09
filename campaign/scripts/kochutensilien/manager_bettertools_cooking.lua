@@ -14,70 +14,70 @@ local _tTableNames = {
 
 local _tEffects = {
 	common = {
-		{ text = "Bonus auf Akrobatik und Athletik von +2", code = "SKILL: 2 acrobatics; SKILL: 2 athletics" },
-		{ text = "Bonus auf Arkane Kunde und Geschichte von +2", code = "SKILL: 2 arcana; SKILL: 2 history" },
-		{ text = "Bonus auf Auftreten und Einschüchtern von +2", code = "SKILL: 2 performance; SKILL: 2 intimidation" },
-		{ text = "Bonus auf Naturkunde und Überleben von +2", code = "SKILL: 2 nature; SKILL: 2 survival" },
-		{ text = "Bonus auf Wahrnehmung und Nachforschungen von +2", code = "SKILL: 2 perception; SKILL: 2 investigation" },
-		{ text = "Bonus auf Überzeugen und Täuschen von +2", code = "SKILL: 2 persuasion; SKILL: 2 deception" },
-		{ text = "Bonus auf Heilkunde und Religion von +2", code = "SKILL: 2 medicine; SKILL: 2 religion" },
-		{ text = "Bonus auf Motiv erkennen und Mit Tieren umgehen von +2", code = "SKILL: 2 insight; SKILL: 2 animal handling" },
-		{ text = "Bonus auf Heimlichkeit und Fingerfertigkeit von +2", code = "SKILL: 2 stealth; SKILL: 2 sleight of hand" },
-		{ text = "1W4 + 4 temporäre TP", code = "Note: 1W4 + 4 temporäre TP" },
-		{ text = "Vorteil auf Todesrettungswürfe", code = "Note: Vorteil auf Todesrettungswürfe" },
-		{ text = "Wenn du zum ersten Mal auf 0 TP fällst, erhält der Angreifer 3W10 Energieschaden", code = "Note: Bei erstem Fall auf 0 TP erhält der Angreifer 3W10 Energieschaden" },
-		{ text = "Bonus auf Initiative von +2", code = "INIT: 2" },
-		{ text = "Schadensgrenze von 5", code = "Note: Schadensgrenze 5" },
-		{ text = "Du würfelst deinen nächsten Angriffswurf mit Vorteil", code = "Note: Nächster Angriffswurf mit Vorteil" },
-		{ text = "Du würfelst deinen nächsten Attributswurf mit Vorteil (Initiative ausgenommen)", code = "Note: Nächster Attributswurf mit Vorteil (Initiative ausgenommen)" },
-		{ text = "Du bekommst Durchfall und musst dringend auf die Toilette", code = "Note: Durchfall" },
-		{ text = "Du hast gut gegessen und bist daher glücklich und zufrieden", code = "Note: Glücklich und zufrieden" },
-		{ text = "Die Mahlzeit war schmackhaft, hinterlässt aber ordentlichen Mundgeruch", code = "Note: Ordentlicher Mundgeruch" },
-		{ text = "Du erhältst einen Stufe 1-Zauberslot zurück", code = "Note: Einen Stufe 1-Zauberslot zurückerhalten" },
+		{ text = "Bonus auf Akrobatik und Athletik von +2", code = "Cooking; SKILL: 2 athletics, acrobatics" },
+		{ text = "Bonus auf Arkane Kunde und Geschichte von +2", code = "Cooking; SKILL: 2 arcana, history" },
+		{ text = "Bonus auf Auftreten und Einschüchtern von +2", code = "Cooking; SKILL: 2 performance, intimidation" },
+		{ text = "Bonus auf Naturkunde und Überleben von +2", code = "Cooking; SKILL: 2 nature, survival" },
+		{ text = "Bonus auf Wahrnehmung und Nachforschungen von +2", code = "Cooking; SKILL: 2 perception, investigation" },
+		{ text = "Bonus auf Überzeugen und Täuschen von +2", code = "Cooking; SKILL: 2 persuasion, deception" },
+		{ text = "Bonus auf Heilkunde und Religion von +2", code = "Cooking; SKILL: 2 medicine, religion" },
+		{ text = "Bonus auf Motiv erkennen und Mit Tieren umgehen von +2", code = "Cooking; SKILL: 2 insight, animal handling" },
+		{ text = "Bonus auf Heimlichkeit und Fingerfertigkeit von +2", code = "Cooking; SKILL: 2 stealth, sleight of hand" },
+		{ text = "1W4 + 4 temporäre TP", code = "Cooking; 1d4 + 4 temp HP" },
+		{ text = "Vorteil auf Todesrettungswürfe", code = "Cooking; ADVDEATH" },
+		{ text = "Wenn du zum ersten Mal auf 0 TP fällst, erhält der Angreifer 3W10 Energieschaden", code = "Cooking; 1st down = 3d10 force DMG" },
+		{ text = "Bonus auf Initiative von +2", code = "Cooking; INIT: 2" },
+		{ text = "Schadensgrenze von 5", code = "Cooking; DT: 5" },
+		{ text = "Du würfelst deinen nächsten Angriffswurf mit Vorteil", code = "Cooking; ADVATK; Next roll" },
+		{ text = "Du würfelst deinen nächsten Attributswurf mit Vorteil (Initiative ausgenommen)", code = "Cooking; ADV on Attributes, next roll, no init" },
+		{ text = "Du bekommst Durchfall und musst dringend auf die Toilette", code = "Cooking; Durchfall" },
+		{ text = "Du hast gut gegessen und bist daher glücklich und zufrieden", code = "Cooking; Glücklich und zufrieden" },
+		{ text = "Die Mahlzeit war schmackhaft, hinterlässt aber ordentlichen Mundgeruch", code = "Cooking; Ordentlicher Mundgeruch" },
+		{ text = "Du erhältst einen Stufe 1-Zauberslot zurück", code = "Cooking; 1st spell slot restored" },
 	},
 	rare = {
-		{ text = "Bonus auf Rüstungsklasse von +1", code = "AC: 1" },
-		{ text = "Bonus auf Angriffswürfe von +1", code = "ATK: 1" },
-		{ text = "Du kannst unterwasser atmen", code = "Note: Unterwasser atmen" },
-		{ text = "Flugbewegungsrate von 10 ft.", code = "Note: Flugbewegungsrate 10 ft." },
-		{ text = "Schwimm- und Kletterbewegungsrate von +10 ft.", code = "Note: Schwimm- und Kletterbewegungsrate +10 ft." },
-		{ text = "Du kannst dein Geschlecht ändern", code = "Note: Geschlecht ändern" },
-		{ text = "Du kannst einmal den Zauber Nebelschritt wirken", code = "Note: Einmal Nebelschritt wirken" },
-		{ text = "2W4 + 8 temporäre TP", code = "Note: 2W4 + 8 temporäre TP" },
-		{ text = "Die Dauer einer Langen Rast wird um 4h reduziert (Minimum 4h)", code = "Note: Lange Rast um 4h reduziert (Minimum 4h)" },
-		{ text = "Wenn du zum ersten Mal auf 0 TP fällst, erhält der Angreifer 5W10 Energieschaden", code = "Note: Bei erstem Fall auf 0 TP erhält der Angreifer 5W10 Energieschaden" },
-		{ text = "Bonus auf Initiative von +5", code = "INIT: 5" },
-		{ text = "Bonus auf Stärkerettungswürfe von +2", code = "SAVE: 2 strength" },
-		{ text = "Bonus auf Geschicklichkeitsrettungswürfe von +2", code = "SAVE: 2 dexterity" },
-		{ text = "Bonus auf Konstitutionsrettungswürfe von +2", code = "SAVE: 2 constitution" },
-		{ text = "Bonus auf Intelligenzrettungswürfe von +2", code = "SAVE: 2 intelligence" },
-		{ text = "Bonus auf Weisheitsrettungswürfe von +2", code = "SAVE: 2 wisdom" },
-		{ text = "Bonus auf Charismarettungswürfe von +2", code = "SAVE: 2 charisma" },
-		{ text = "Du erhältst Dunkelsicht bis zu 60 ft. (120 ft., wenn deine Spezies schon 60 ft. besitzt)", code = "Note: Dunkelsicht 60 ft. (120 ft., wenn bereits 60 ft.)" },
-		{ text = "Bewegungsrate von +10 ft.", code = "Note: Bewegungsrate +10 ft." },
-		{ text = "Du erhältst einen Zauberslot der Stufe 3 oder niedriger zurück", code = "Note: Einen Zauberslot der Stufe 3 oder niedriger zurückerhalten" },
+		{ text = "Bonus auf Rüstungsklasse von +1", code = "Cooking; AC: 1" },
+		{ text = "Bonus auf Angriffswürfe von +1", code = "Cooking; ATK: 1" },
+		{ text = "Du kannst unterwasser atmen", code = "Cooking; underwater breathing" },
+		{ text = "Flugbewegungsrate von 10 ft.", code = "Cooking; +10ft. flying" },
+		{ text = "Schwimm- und Kletterbewegungsrate von +10 ft.", code = "Cooking; +10ft. swim/climb" },
+		{ text = "Du kannst dein Geschlecht ändern", code = "Cooking; Geschlecht ändern" },
+		{ text = "Du kannst einmal den Zauber Nebelschritt wirken", code = "Cooking; 1x Misty Step" },
+		{ text = "2W4 + 8 temporäre TP", code = "Cooking; 2d4 + 8 temp HP" },
+		{ text = "Die Dauer einer Langen Rast wird um 4h reduziert (Minimum 4h)", code = "Cooking; -4h Long rest" },
+		{ text = "Wenn du zum ersten Mal auf 0 TP fällst, erhält der Angreifer 5W10 Energieschaden", code = "Cooking; 1st down = 5d10 force DMG" },
+		{ text = "Bonus auf Initiative von +5", code = "Cooking; INIT: 5" },
+		{ text = "Bonus auf Stärkerettungswürfe von +2", code = "Cooking; SAVE: 2 strength" },
+		{ text = "Bonus auf Geschicklichkeitsrettungswürfe von +2", code = "Cooking; SAVE: 2 dexterity" },
+		{ text = "Bonus auf Konstitutionsrettungswürfe von +2", code = "Cooking; SAVE: 2 constitution" },
+		{ text = "Bonus auf Intelligenzrettungswürfe von +2", code = "Cooking; SAVE: 2 intelligence" },
+		{ text = "Bonus auf Weisheitsrettungswürfe von +2", code = "Cooking; SAVE: 2 wisdom" },
+		{ text = "Bonus auf Charismarettungswürfe von +2", code = "Cooking; SAVE: 2 charisma" },
+		{ text = "Du erhältst Dunkelsicht bis zu 60 ft. (120 ft., wenn deine Spezies schon 60 ft. besitzt)", code = "Cooking; Darkvision +60ft." },
+		{ text = "Bewegungsrate von +10 ft.", code = "Cooking; +10ft. movement" },
+		{ text = "Du erhältst einen Zauberslot der Stufe 3 oder niedriger zurück", code = "Cooking; spell slot level 3 or lower restored" },
 	},
 	veryrare = {
-		{ text = "Bonus auf Rüstungsklasse von +2", code = "AC: 2" },
-		{ text = "Bonus auf Angriffswürfe von +2", code = "ATK: 2" },
-		{ text = "Du provozierst keine Gelegenheitsangriffe", code = "Note: Provoziert keine Gelegenheitsangriffe" },
-		{ text = "Resistenz gegen nichtmagischen Hieb-, Stich- und Wuchtschaden", code = "RESIST: bludgeoning, piercing, slashing, !magic" },
-		{ text = "Du erfährst den Effekt des Vergrößern/Verkleinern-Zaubers ohne Konzentration", code = "Note: Vergrößern/Verkleinern ohne Konzentration" },
-		{ text = "4W4 + 16 temporäre TP", code = "Note: 4W4 + 16 temporäre TP" },
-		{ text = "Wenn du zum ersten Mal auf 0 TP fällst, fällst du stattdessen auf 1 TP und der Angreifer erhält 5W10 Energieschaden", code = "Note: Bei erstem Fall auf 0 TP stattdessen 1 TP; Angreifer erhält 5W10 Energieschaden" },
-		{ text = "Bonus auf Initiative von +2 und Vorteil bei Initiativewürfen", code = "INIT: 2; ADVINIT" },
-		{ text = "Du kannst ein Mal einen fehlgeschlagenen Angriffs-, Attributs- oder Rettungswurf wiederholen", code = "Note: Einmal fehlgeschlagenen Angriffs-, Attributs- oder Rettungswurf wiederholen" },
-		{ text = "Du regenerierst 5 TP zu Beginn deiner Runde, außer du beginnst sie mit 0 TP", code = "REGEN: 5" },
-		{ text = "Du erhältst eine zusätzliche Reaktion pro Runde", code = "Note: Zusätzliche Reaktion pro Runde" },
-		{ text = "Du erhältst die Effekte einer kurzen Rast", code = "Note: Effekte einer kurzen Rast erhalten" },
-		{ text = "Schwimm-/Kletterbewegungsrate +20 ft.", code = "Note: Schwimm-/Kletterbewegungsrate +20 ft." },
-		{ text = "Bonus auf Schadenswürfe in Höhe des Übungsbonus", code = "Note: Schadenswürfe +Übungsbonus" },
-		{ text = "Du kannst einmal Dimensionstür als Bonusaktion wirken", code = "Note: Einmal Dimensionstür als Bonusaktion wirken" },
-		{ text = "Angreifer, die dich mit einem Angriffswurf treffen, erhalten 5 Punkte Schaden", code = "Note: Angreifer erhalten bei Treffer 5 Schaden" },
-		{ text = "Stärkewert steigt auf mindestens 20", code = "Note: Stärkewert mindestens 20" },
-		{ text = "Geschicklichkeitswert steigt auf mindestens 20", code = "Note: Geschicklichkeitswert mindestens 20" },
-		{ text = "Jeder erfolgreiche Angriff bewegt das Ziel um 5 ft. nach hinten, sofern es nicht Riesig oder größer ist", code = "Note: Erfolgreiche Angriffe schieben Ziel 5 ft." },
-		{ text = "Du erhältst einen Zauberslot der Stufe 5 oder niedriger zurück", code = "Note: Einen Zauberslot der Stufe 5 oder niedriger zurückerhalten" },
+		{ text = "Bonus auf Rüstungsklasse von +2", code = "Cooking; AC: 2" },
+		{ text = "Bonus auf Angriffswürfe von +2", code = "Cooking; ATK: 2" },
+		{ text = "Du provozierst keine Gelegenheitsangriffe", code = "Cooking; no opportunity attacks" },
+		{ text = "Resistenz gegen nichtmagischen Hieb-, Stich- und Wuchtschaden", code = "Cooking; RESIST: slashing, piercing, bludgeoning" },
+		{ text = "Du erfährst den Effekt des Vergrößern/Verkleinern-Zaubers ohne Konzentration", code = "Cooking; Enlarge/Reduce, no concentration" },
+		{ text = "4W4 + 16 temporäre TP", code = "Cooking; 4d4 + 16 temp HP" },
+		{ text = "Wenn du zum ersten Mal auf 0 TP fällst, fällst du stattdessen auf 1 TP und der Angreifer erhält 5W10 Energieschaden", code = "Cooking; 1st down = 1HP, 5d10 force DMG" },
+		{ text = "Bonus auf Initiative von +2 und Vorteil bei Initiativewürfen", code = "Cooking; ADVINIT; INIT: 2" },
+		{ text = "Du kannst ein Mal einen fehlgeschlagenen Angriffs-, Attributs- oder Rettungswurf wiederholen", code = "Cooking; 1x reroll failed atk/Attribute/save" },
+		{ text = "Du regenerierst 5 TP zu Beginn deiner Runde, außer du beginnst sie mit 0 TP", code = "Cooking; REGEN: 5" },
+		{ text = "Du erhältst eine zusätzliche Reaktion pro Runde", code = "Cooking; additional reaction" },
+		{ text = "Du erhältst die Effekte einer kurzen Rast", code = "Cooking; short rest effects" },
+		{ text = "Schwimm-/Kletterbewegungsrate +20 ft.", code = "Cooking; +20ft. fly/swim/burrow" },
+		{ text = "Bonus auf Schadenswürfe in Höhe des Übungsbonus", code = "Cooking; damage rolls +PB" },
+		{ text = "Du kannst einmal Dimensionstür als Bonusaktion wirken", code = "Cooking; 1x Dimension Door" },
+		{ text = "Angreifer, die dich mit einem Angriffswurf treffen, erhalten 5 Punkte Schaden", code = "Cooking; enemy takes 5 DMG on hit" },
+		{ text = "Stärkewert steigt auf mindestens 20", code = "Cooking; STR = 20" },
+		{ text = "Geschicklichkeitswert steigt auf mindestens 20", code = "Cooking; DEX = 20" },
+		{ text = "Jeder erfolgreiche Angriff bewegt das Ziel um 5 ft. nach hinten, sofern es nicht Riesig oder größer ist", code = "Cooking; successful attacks push target 5ft." },
+		{ text = "Du erhältst einen Zauberslot der Stufe 5 oder niedriger zurück", code = "Cooking; spell slot level 5 or lower restored" },
 	},
 };
 
@@ -155,6 +155,7 @@ function ensureEffectTables()
 
 	for sRarity, _ in pairs(_tTableNames) do
 		BetterToolsCookingManager.ensureEffectTable(sRarity);
+		BetterToolsCookingManager.migrateEffectTablePrefix(sRarity);
 	end
 end
 
@@ -202,6 +203,37 @@ function ensureEffectTable(sRarity)
 
 		local nodeResultCode = DB.createChild(nodeResults);
 		DB.setValue(nodeResultCode, "result", "string", tEffect.code or "");
+	end
+end
+
+function migrateEffectTablePrefix(sRarity)
+	local nodeTable = BetterToolsCookingManager.findEffectTable(sRarity);
+	if not nodeTable then
+		return;
+	end
+
+	for _, nodeRow in ipairs(DB.getChildList(nodeTable, "tablerows")) do
+		local nodeResults = DB.getChild(nodeRow, "results");
+		if nodeResults then
+			local tKeys = {};
+			local tChildren = DB.getChildren(nodeResults);
+			for sKey, _ in pairs(tChildren) do
+				table.insert(tKeys, sKey);
+			end
+			table.sort(tKeys);
+
+			if tKeys[2] then
+				local nodeCode = tChildren[tKeys[2]];
+				local sCode = DB.getValue(nodeCode, "result", "");
+				if sCode:match("^Note:") then
+					DB.setValue(nodeCode, "result", "string", "Cooking;" .. sCode:sub(6));
+				elseif sCode:match("^Cooking:") then
+					DB.setValue(nodeCode, "result", "string", "Cooking;" .. sCode:sub(9));
+				elseif not sCode:match("^Cooking;") and StringManager.trim(sCode) ~= "" then
+					DB.setValue(nodeCode, "result", "string", "Cooking; " .. sCode);
+				end
+			end
+		end
 	end
 end
 

@@ -3,7 +3,7 @@ function onInit()
 		quantity.setValue(1);
 	end
 	self.syncEffectFromTable();
-	self.updateSortRarity();
+	self.updateSortFields();
 	self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 end
 
@@ -13,17 +13,18 @@ function onLockModeChanged(bReadOnly)
 	idelete_spacer.setVisible(bReadOnly);
 end
 
-function updateSortRarity()
+function updateSortFields()
 	local tOrder = {
 		common = 1,
 		rare = 2,
 		veryrare = 3,
 	};
 	sort_rarity.setValue(tOrder[rarity.getValue()] or 9);
+	sort_effectno.setValue(effectno.getValue());
+	sort_name.setValue(StringManager.trim(name.getValue()):lower());
 end
 
 function onRarityChanged()
-	self.updateSortRarity();
 	self.syncEffectFromTable();
 end
 
@@ -35,16 +36,14 @@ function syncEffectFromTable()
 	local nEffectNo = effectno.getValue();
 	local sRarity = rarity.getValue();
 	if nEffectNo <= 0 or sRarity == "" then
+		effecttext.setValue("");
+		effectcode.setValue("");
 		return;
 	end
 
 	local tEffect = BetterToolsCookingManager.getEffectData(sRarity, nEffectNo);
-	if (tEffect.text or "") ~= "" then
-		effecttext.setValue(tEffect.text);
-	end
-	if (tEffect.code or "") ~= "" then
-		effectcode.setValue(tEffect.code);
-	end
+	effecttext.setValue(tEffect.text or "");
+	effectcode.setValue(tEffect.code or "");
 end
 
 function rollEffect()

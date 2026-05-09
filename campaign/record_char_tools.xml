@@ -19,6 +19,16 @@
 			end
 			function onLockModeChanged(bReadOnly)
 				WindowManager.callSafeControlsSetLockMode(self, { "list_iadd", "ingredient_idelete_header", }, bReadOnly);
+				if bReadOnly then
+					self.updateIngredientSortFields();
+				end
+			end
+			function updateIngredientSortFields()
+				for _, w in pairs(list.getWindows()) do
+					if w.updateSortFields then
+						w.updateSortFields();
+					end
+				end
 			end
 			function cookSelectedIngredients()
 				local tIngredients = {};
@@ -120,17 +130,12 @@
 					for _, rTarget in ipairs(tTargets) do
 						for _, tIngredient in ipairs(tIngredients) do
 							if tIngredient.effectcode ~= "" then
-								for _, sEffectCode in ipairs(StringManager.split(tIngredient.effectcode, ";", true)) do
-									sEffectCode = StringManager.trim(sEffectCode);
-									if sEffectCode ~= "" then
-										EffectManager.addEffectByTable(rTarget, {
-											sName = sEffectCode,
-											sSource = ActorManager.getCTNodeName(rActor),
-											sExpiration = "restlong",
-										});
-										nApplied = nApplied + 1;
-									end
-								end
+								EffectManager.addEffectByTable(rTarget, {
+									sName = tIngredient.effectcode,
+									sSource = ActorManager.getCTNodeName(rActor),
+									sExpiration = "restlong",
+								});
+								nApplied = nApplied + 1;
 							end
 						end
 					end
@@ -181,8 +186,8 @@
 				<class>bettertools_cooking_ingredient</class>
 				<sortby>
 					<control>sort_rarity</control>
-					<control>effectno</control>
-					<control>name</control>
+					<control>sort_effectno</control>
+					<control>sort_name</control>
 				</sortby>
 			</list_content_labeled_alternating_top>
 			<scrollbar_list name="ingredient_scrollbar" />
@@ -229,6 +234,14 @@
 				<bounds>0,0,0,0</bounds>
 				<invisible />
 			</numbercontrol>
+			<numbercontrol name="sort_effectno">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+			</numbercontrol>
+			<stringfield name="sort_name">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+			</stringfield>
 
 			<button_listitem_idelete_left name="idelete" />
 			<spacer_listitem_idelete_left name="idelete_spacer" />
@@ -262,9 +275,9 @@
 			</number_listitem_right>
 
 			<button_stringcycler name="rarity">
-				<anchored to="rightanchor" width="95" height="20">
+				<anchored to="effectno" width="95" height="20">
 					<top />
-					<right relation="relative" offset="-50" postoffset="-50" />
+					<right anchor="left" relation="relative" offset="-5" />
 				</anchored>
 				<parameters>
 					<defaultlabel>-</defaultlabel>
