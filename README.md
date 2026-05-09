@@ -1,5 +1,14 @@
 # BetterTools
+BetterTools ist eine Fantasy-Grounds-Extension für DnD 5E. 
+Sie fügt dem Charakterbogen einen Tools-Tab hinzu und integriert Homebrew-Tools.
 
-Fantasy Grounds extension for D&D 5E that adds a character sheet Tools tab and custom tool implementations.
+## Funktionen
+- Tools-Tab im Charakterbogen
+- Implementierung für Kochutensilien
+- Implementierung für Brauerausrüstung
 
-Author: SchonWer
+## Installation
+1. `BetterTools.ext` herunterladen.
+2. Die Datei in den Fantasy-Grounds-Ordner `extensions` legen.
+3. Fantasy Grounds neu starten.
+4. Beim Laden der Campaign die Extension `BetterTools` aktivieren.
