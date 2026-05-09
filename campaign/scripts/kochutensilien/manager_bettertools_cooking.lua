@@ -1,4 +1,5 @@
 local ROLL_TYPE = "bettertools_cooking_effect";
+local TEMP_HP_ROLL_TYPE = "bettertools_cooking_temphp";
 
 local _tRarityLabels = {
 	common = "Gewöhnlich",
@@ -29,7 +30,7 @@ local _tEffects = {
 		{ text = "Bonus auf Initiative von +2", code = "Cooking; INIT: 2" },
 		{ text = "Schadensgrenze von 5", code = "Cooking; DT: 5" },
 		{ text = "Du würfelst deinen nächsten Angriffswurf mit Vorteil", code = "Cooking; ADVATK; Next roll" },
-		{ text = "Du würfelst deinen nächsten Attributswurf mit Vorteil (Initiative ausgenommen)", code = "Cooking; ADV on Attributes, next roll, no init" },
+		{ text = "Du würfelst deinen nächsten Attributswurf mit Vorteil (Initiative ausgenommen)", code = "Cooking; ADVCHK; Next attribute check, no init" },
 		{ text = "Du bekommst Durchfall und musst dringend auf die Toilette", code = "Cooking; Durchfall" },
 		{ text = "Du hast gut gegessen und bist daher glücklich und zufrieden", code = "Cooking; Glücklich und zufrieden" },
 		{ text = "Die Mahlzeit war schmackhaft, hinterlässt aber ordentlichen Mundgeruch", code = "Cooking; Ordentlicher Mundgeruch" },
@@ -38,8 +39,8 @@ local _tEffects = {
 	rare = {
 		{ text = "Bonus auf Rüstungsklasse von +1", code = "Cooking; AC: 1" },
 		{ text = "Bonus auf Angriffswürfe von +1", code = "Cooking; ATK: 1" },
-		{ text = "Du kannst unterwasser atmen", code = "Cooking; underwater breathing" },
-		{ text = "Flugbewegungsrate von 10 ft.", code = "Cooking; +10ft. flying" },
+		{ text = "Du kannst unterwasser atmen", code = "Cooking; Breathe underwater" },
+		{ text = "Flugbewegungsrate von 10 ft.", code = "Cooking; Fly Speed 10" },
 		{ text = "Schwimm- und Kletterbewegungsrate von +10 ft.", code = "Cooking; +10ft. swim/climb" },
 		{ text = "Du kannst dein Geschlecht ändern", code = "Cooking; Geschlecht ändern" },
 		{ text = "Du kannst einmal den Zauber Nebelschritt wirken", code = "Cooking; 1x Misty Step" },
@@ -53,15 +54,15 @@ local _tEffects = {
 		{ text = "Bonus auf Intelligenzrettungswürfe von +2", code = "Cooking; SAVE: 2 intelligence" },
 		{ text = "Bonus auf Weisheitsrettungswürfe von +2", code = "Cooking; SAVE: 2 wisdom" },
 		{ text = "Bonus auf Charismarettungswürfe von +2", code = "Cooking; SAVE: 2 charisma" },
-		{ text = "Du erhältst Dunkelsicht bis zu 60 ft. (120 ft., wenn deine Spezies schon 60 ft. besitzt)", code = "Cooking; Darkvision +60ft." },
-		{ text = "Bewegungsrate von +10 ft.", code = "Cooking; +10ft. movement" },
+		{ text = "Du erhältst Dunkelsicht bis zu 60 ft. (120 ft., wenn deine Spezies schon 60 ft. besitzt)", code = "Cooking; VISION: 60 darkvision" },
+		{ text = "Bewegungsrate von +10 ft.", code = "Cooking; Speed +10" },
 		{ text = "Du erhältst einen Zauberslot der Stufe 3 oder niedriger zurück", code = "Cooking; spell slot level 3 or lower restored" },
 	},
 	veryrare = {
 		{ text = "Bonus auf Rüstungsklasse von +2", code = "Cooking; AC: 2" },
 		{ text = "Bonus auf Angriffswürfe von +2", code = "Cooking; ATK: 2" },
 		{ text = "Du provozierst keine Gelegenheitsangriffe", code = "Cooking; no opportunity attacks" },
-		{ text = "Resistenz gegen nichtmagischen Hieb-, Stich- und Wuchtschaden", code = "Cooking; RESIST: slashing, piercing, bludgeoning" },
+		{ text = "Resistenz gegen nichtmagischen Hieb-, Stich- und Wuchtschaden", code = "Cooking; RESIST: bludgeoning, piercing, slashing, !magic" },
 		{ text = "Du erfährst den Effekt des Vergrößern/Verkleinern-Zaubers ohne Konzentration", code = "Cooking; Enlarge/Reduce, no concentration" },
 		{ text = "4W4 + 16 temporäre TP", code = "Cooking; 4d4 + 16 temp HP" },
 		{ text = "Wenn du zum ersten Mal auf 0 TP fällst, fällst du stattdessen auf 1 TP und der Angreifer erhält 5W10 Energieschaden", code = "Cooking; 1st down = 1HP, 5d10 force DMG" },
@@ -71,7 +72,7 @@ local _tEffects = {
 		{ text = "Du erhältst eine zusätzliche Reaktion pro Runde", code = "Cooking; additional reaction" },
 		{ text = "Du erhältst die Effekte einer kurzen Rast", code = "Cooking; short rest effects" },
 		{ text = "Schwimm-/Kletterbewegungsrate +20 ft.", code = "Cooking; +20ft. fly/swim/burrow" },
-		{ text = "Bonus auf Schadenswürfe in Höhe des Übungsbonus", code = "Cooking; damage rolls +PB" },
+		{ text = "Bonus auf Schadenswürfe in Höhe des Übungsbonus", code = "Cooking; DMG: [PRF]" },
 		{ text = "Du kannst einmal Dimensionstür als Bonusaktion wirken", code = "Cooking; 1x Dimension Door" },
 		{ text = "Angreifer, die dich mit einem Angriffswurf treffen, erhalten 5 Punkte Schaden", code = "Cooking; enemy takes 5 DMG on hit" },
 		{ text = "Stärkewert steigt auf mindestens 20", code = "Cooking; STR = 20" },
@@ -83,6 +84,7 @@ local _tEffects = {
 
 function onInit()
 	ActionsManager.registerResultHandler(ROLL_TYPE, BetterToolsCookingManager.onEffectRoll);
+	ActionsManager.registerResultHandler(TEMP_HP_ROLL_TYPE, BetterToolsCookingManager.onTempHPRoll);
 	BetterToolsCookingManager.ensureEffectTables();
 end
 
@@ -117,6 +119,157 @@ function getEffectData(sRarity, nEffectNo)
 		return { text = tEffect.text or "", code = tEffect.code or "" };
 	end
 	return { text = tEffect or "", code = "" };
+end
+
+function getTempHPFormula(sEffectCode)
+	local sCode = string.lower(StringManager.trim(sEffectCode or ""));
+	if sCode == "" then
+		return nil;
+	end
+
+	local sDiceCount, sDiceSides, sSign, sMod = sCode:match("(%d*)d(%d+)%s*([%+%-])%s*(%d+)%s*temp%s*hp");
+	if sDiceSides then
+		local nDiceCount = tonumber(sDiceCount);
+		if not nDiceCount or nDiceCount <= 0 then
+			nDiceCount = 1;
+		end
+		local nMod = tonumber(sMod) or 0;
+		if sSign == "-" then
+			nMod = -nMod;
+		end
+		return { dice = nDiceCount, sides = tonumber(sDiceSides) or 0, mod = nMod };
+	end
+
+	sDiceCount, sDiceSides = sCode:match("(%d*)d(%d+)%s*temp%s*hp");
+	if sDiceSides then
+		local nDiceCount = tonumber(sDiceCount);
+		if not nDiceCount or nDiceCount <= 0 then
+			nDiceCount = 1;
+		end
+		return { dice = nDiceCount, sides = tonumber(sDiceSides) or 0, mod = 0 };
+	end
+
+	local sFlat = sCode:match("(%d+)%s*temp%s*hp");
+	if sFlat then
+		return { dice = 0, sides = 0, mod = tonumber(sFlat) or 0 };
+	end
+
+	return nil;
+end
+
+function rollTempHP(sEffectCode)
+	local tFormula = BetterToolsCookingManager.getTempHPFormula(sEffectCode);
+	if not tFormula then
+		return nil;
+	end
+
+	local nTotal = tFormula.mod or 0;
+	local tRolls = {};
+	for _ = 1, tFormula.dice or 0 do
+		local nRoll = math.random(tFormula.sides or 1);
+		table.insert(tRolls, nRoll);
+		nTotal = nTotal + nRoll;
+	end
+
+	local sFormula;
+	if (tFormula.dice or 0) > 0 then
+		sFormula = string.format("%dd%d", tFormula.dice, tFormula.sides);
+		if (tFormula.mod or 0) > 0 then
+			sFormula = sFormula .. " + " .. tFormula.mod;
+		elseif (tFormula.mod or 0) < 0 then
+			sFormula = sFormula .. " - " .. math.abs(tFormula.mod);
+		end
+	else
+		sFormula = tostring(tFormula.mod or 0);
+	end
+
+	return {
+		total = math.max(nTotal, 0),
+		formula = sFormula,
+		rolls = table.concat(tRolls, ", "),
+	};
+end
+
+function getActorNodePath(rActor)
+	if not rActor then
+		return "";
+	end
+
+	local nodeActor = ActorManager.getCreatureNode(rActor);
+	if nodeActor then
+		return DB.getPath(nodeActor);
+	end
+
+	if ActorManager.getCTNode then
+		local nodeCT = ActorManager.getCTNode(rActor);
+		if nodeCT then
+			return DB.getPath(nodeCT);
+		end
+	end
+
+	return "";
+end
+
+function performTempHPRoll(rActor, tTargets, sIngredientName, sEffectCode)
+	local tFormula = BetterToolsCookingManager.getTempHPFormula(sEffectCode);
+	if not tFormula then
+		return false;
+	end
+
+	local tTargetPaths = {};
+	for _, rTarget in ipairs(tTargets or {}) do
+		local sTargetPath = BetterToolsCookingManager.getActorNodePath(rTarget);
+		if sTargetPath ~= "" then
+			table.insert(tTargetPaths, sTargetPath);
+		end
+	end
+	if #tTargetPaths == 0 then
+		return false;
+	end
+
+	local aDice = {};
+	for _ = 1, tFormula.dice or 0 do
+		table.insert(aDice, "d" .. (tFormula.sides or 1));
+	end
+
+	local rRoll = {
+		sType = TEMP_HP_ROLL_TYPE,
+		sDesc = "[BetterTools] Temporäre TP: " .. (sIngredientName or "Kochutensilien"),
+		aDice = aDice,
+		nMod = tFormula.mod or 0,
+		sTargetPaths = table.concat(tTargetPaths, "|"),
+	};
+	ActionsManager.performAction(nil, rActor, rRoll);
+	return true;
+end
+
+function applyTempHP(rActor, nTempHP)
+	if not rActor then
+		return false, 0;
+	end
+
+	local nCurrentTempHP = tonumber(GameManager.getRecordFieldValue(rActor, "hptemp", 0)) or 0;
+	if nTempHP > nCurrentTempHP then
+		GameManager.setRecordFieldValue(rActor, "hptemp", "number", nTempHP);
+		return true, nCurrentTempHP;
+	end
+	return false, nCurrentTempHP;
+end
+
+function getActorDisplayName(rActor)
+	local sName = "";
+	if ActorManager then
+		if ActorManager.getDisplayName then
+			sName = ActorManager.getDisplayName(rActor) or "";
+		end
+		if sName == "" and ActorManager.getActorName then
+			sName = ActorManager.getActorName(rActor) or "";
+		end
+	end
+	if sName == "" then
+		sName = (rActor and rActor.sName) or "Ziel";
+	end
+	return sName;
 end
 
 function getRarityLabel(sRarity)
@@ -155,7 +308,6 @@ function ensureEffectTables()
 
 	for sRarity, _ in pairs(_tTableNames) do
 		BetterToolsCookingManager.ensureEffectTable(sRarity);
-		BetterToolsCookingManager.migrateEffectTablePrefix(sRarity);
 	end
 end
 
@@ -203,37 +355,6 @@ function ensureEffectTable(sRarity)
 
 		local nodeResultCode = DB.createChild(nodeResults);
 		DB.setValue(nodeResultCode, "result", "string", tEffect.code or "");
-	end
-end
-
-function migrateEffectTablePrefix(sRarity)
-	local nodeTable = BetterToolsCookingManager.findEffectTable(sRarity);
-	if not nodeTable then
-		return;
-	end
-
-	for _, nodeRow in ipairs(DB.getChildList(nodeTable, "tablerows")) do
-		local nodeResults = DB.getChild(nodeRow, "results");
-		if nodeResults then
-			local tKeys = {};
-			local tChildren = DB.getChildren(nodeResults);
-			for sKey, _ in pairs(tChildren) do
-				table.insert(tKeys, sKey);
-			end
-			table.sort(tKeys);
-
-			if tKeys[2] then
-				local nodeCode = tChildren[tKeys[2]];
-				local sCode = DB.getValue(nodeCode, "result", "");
-				if sCode:match("^Note:") then
-					DB.setValue(nodeCode, "result", "string", "Cooking;" .. sCode:sub(6));
-				elseif sCode:match("^Cooking:") then
-					DB.setValue(nodeCode, "result", "string", "Cooking;" .. sCode:sub(9));
-				elseif not sCode:match("^Cooking;") and StringManager.trim(sCode) ~= "" then
-					DB.setValue(nodeCode, "result", "string", "Cooking; " .. sCode);
-				end
-			end
-		end
 	end
 end
 
@@ -326,5 +447,32 @@ function onEffectRoll(rSource, _, rRoll)
 
 	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
 	rMessage.text = rMessage.text .. string.format("\r%s Zutat, W20 = %d:\r%s\rFG-Code: %s", BetterToolsCookingManager.getRarityLabel(sRarity), nRoll, sEffect, sEffectCode);
+	Comm.deliverChatMessage(rMessage);
+end
+
+function onTempHPRoll(rSource, _, rRoll)
+	local nTempHP = math.max(ActionsManager.total(rRoll), 0);
+	local tLines = {};
+
+	for sTargetPath in string.gmatch(rRoll.sTargetPaths or "", "([^|]+)") do
+		local nodeTarget = DB.findNode(sTargetPath);
+		local rTarget = ActorManager.resolveActor(nodeTarget);
+		if rTarget then
+			local bTempHPSet, nCurrentTempHP = BetterToolsCookingManager.applyTempHP(rTarget, nTempHP);
+			local sTargetName = BetterToolsCookingManager.getActorDisplayName(rTarget);
+			if bTempHPSet then
+				table.insert(tLines, "Temporäre TP für " .. sTargetName .. " gesetzt: " .. nTempHP .. ".");
+			else
+				table.insert(tLines, "Temporäre TP für " .. sTargetName .. " bleiben bei " .. nCurrentTempHP .. "; " .. nTempHP .. " wäre niedriger oder gleich.");
+			end
+		else
+			table.insert(tLines, "BetterTools: Ein Ziel wurde für temporäre TP nicht gefunden.");
+		end
+	end
+
+	local rMessage = ActionsManager.createActionMessage(rSource, rRoll);
+	if #tLines > 0 then
+		rMessage.text = rMessage.text .. "\r" .. table.concat(tLines, "\r");
+	end
 	Comm.deliverChatMessage(rMessage);
 end

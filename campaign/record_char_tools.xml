@@ -126,10 +126,11 @@
 				local rActor = ActorManager.resolveActor(nodeChar);
 				local tTargets = TargetingManager.getFullTargets(rActor);
 				local nApplied = 0;
+				local nTempHPRolls = 0;
 				if #tTargets > 0 then
 					for _, rTarget in ipairs(tTargets) do
 						for _, tIngredient in ipairs(tIngredients) do
-							if tIngredient.effectcode ~= "" then
+							if not BetterToolsCookingManager.getTempHPFormula(tIngredient.effectcode) and tIngredient.effectcode ~= "" then
 								EffectManager.addEffectByTable(rTarget, {
 									sName = tIngredient.effectcode,
 									sSource = ActorManager.getCTNodeName(rActor),
@@ -139,8 +140,17 @@
 							end
 						end
 					end
+					for _, tIngredient in ipairs(tIngredients) do
+						if BetterToolsCookingManager.performTempHPRoll(rActor, tTargets, tIngredient.name, tIngredient.effectcode) then
+							nTempHPRolls = nTempHPRolls + 1;
+						end
+					end
 					table.insert(tLines, "");
-					table.insert(tLines, "Angewendete Effekte: " .. nApplied .. " auf " .. #tTargets .. " Ziel(e).");
+					local sAppliedLine = "Angewendete Effekte: " .. nApplied .. " auf " .. #tTargets .. " Ziel(e).";
+					if nTempHPRolls > 0 then
+						sAppliedLine = sAppliedLine .. " Temp-TP-W&#252;rfe: " .. nTempHPRolls .. ".";
+					end
+					table.insert(tLines, sAppliedLine);
 				else
 					table.insert(tLines, "");
 					table.insert(tLines, "Keine Ziele anvisiert; Effekte wurden nicht automatisch angewendet.");
