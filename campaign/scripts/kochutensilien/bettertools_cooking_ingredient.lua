@@ -19,9 +19,17 @@ function updateSortFields()
 		rare = 2,
 		veryrare = 3,
 	};
+	local sName = StringManager.trim(name.getValue());
+	if sName == "" and rarity.getValue() == "" and effectno.getValue() <= 0 then
+		sort_rarity.setValue(0);
+		sort_effectno.setValue(0);
+		sort_name.setValue("");
+		return;
+	end
+
 	sort_rarity.setValue(tOrder[rarity.getValue()] or 9);
 	sort_effectno.setValue(effectno.getValue());
-	sort_name.setValue(StringManager.trim(name.getValue()):lower());
+	sort_name.setValue(sName:lower());
 end
 
 function onRarityChanged()
