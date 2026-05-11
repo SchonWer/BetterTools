@@ -513,6 +513,400 @@
 		</sheetdata>
 	</windowclass>
 
+	<windowclass name="bettertools_herbalism" copy="record_window">
+		<placement>
+			<size width="720" height="820" />
+		</placement>
+		<sheetdata>
+			<sub_content_framed_groupbox name="content">
+				<class>bettertools_herbalism_contents</class>
+			</sub_content_framed_groupbox>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_herbalism_contents">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.ensureDefaultFlasks();
+				self.ensureGatherDefaults();
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "harvest_hours", "downtime_days", "downtime_herb_button", "downtime_herb", }, bReadOnly);
+			end
+			function getFlaskCount()
+				local nCount = 0;
+				for _, _ in pairs(list.getWindows()) do
+					nCount = nCount + 1;
+				end
+				return nCount;
+			end
+			function ensureDefaultFlasks()
+				for i = self.getFlaskCount() + 1, 6 do
+					list.createWindow();
+				end
+			end
+			function ensureGatherDefaults()
+				if harvest_hours.getValue() &lt;= 0 then
+					harvest_hours.setValue(1);
+				end
+				if downtime_days.getValue() &lt;= 0 then
+					downtime_days.setValue(1);
+				end
+				if downtime_herb.getValue() ~= "" then
+					downtime_herblabel.setValue(BetterToolsHerbalismManager.getHerbLabel(downtime_herb.getValue()));
+				end
+			end
+			function harvest()
+				self.ensureGatherDefaults();
+				BetterToolsHerbalismManager.performHarvest(getDatabaseNode(), harvest_hours.getValue());
+			end
+			function downtime()
+				self.ensureGatherDefaults();
+				BetterToolsHerbalismManager.performDowntime(getDatabaseNode(), downtime_herb.getValue(), downtime_days.getValue());
+			end
+			function chooseDowntimeHerb()
+				BetterToolsHerbalismManager.openHerbPicker(getDatabaseNode(), "downtime_herb");
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<label_charframetop name="harvest_header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="2" />
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+				<icons>forge_item_advgear</icons>
+				<static text="Kraut sammeln" />
+			</label_charframetop>
+			<button_text name="harvest_button">
+				<anchored to="harvest_header" height="20" width="80">
+					<top anchor="bottom" relation="relative" offset="4" />
+					<left offset="5" />
+				</anchored>
+				<state text="Sammeln" />
+				<script>
+					function onButtonPress()
+						window.harvest();
+					end
+				</script>
+			</button_text>
+			<number_listitem_left name="harvest_hours">
+				<anchored to="harvest_button" position="righthigh" offset="8,0" width="34" height="20" />
+				<min value="1" />
+				<nodrag />
+			</number_listitem_left>
+			<label name="harvest_hours_label">
+				<anchored to="harvest_hours" position="righthigh" offset="4,0" width="58" height="20" />
+				<static text="Stunden" />
+			</label>
+
+			<button_text name="downtime_button">
+				<anchored to="harvest_button" height="20" width="80">
+					<top anchor="bottom" relation="relative" offset="4" />
+					<left />
+				</anchored>
+				<state text="Downtime" />
+				<script>
+					function onButtonPress()
+						window.downtime();
+					end
+				</script>
+			</button_text>
+			<number_listitem_left name="downtime_days">
+				<anchored to="downtime_button" position="righthigh" offset="8,0" width="34" height="20" />
+				<min value="1" />
+				<nodrag />
+			</number_listitem_left>
+			<label name="downtime_days_label">
+				<anchored to="downtime_days" position="righthigh" offset="4,0" width="34" height="20" />
+				<static text="Tage" />
+			</label>
+			<button_text name="downtime_herb_button">
+				<anchored to="downtime_days_label" position="righthigh" offset="12,0" width="80" height="20" />
+				<state text="Kraut" />
+				<script>
+					function onButtonPress()
+						window.chooseDowntimeHerb();
+					end
+				</script>
+			</button_text>
+			<stringu name="downtime_herblabel">
+				<anchored to="downtime_herb_button" position="righthigh" offset="5,0" width="160" height="20" />
+				<readonly />
+				<nodrag />
+			</stringu>
+			<stringfield name="downtime_herb">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+			</stringfield>
+
+			<label_charframetop name="flask_header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="78" />
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+				<icons>forge_item_advgear</icons>
+				<static text="Flakons" />
+			</label_charframetop>
+			<list_content_labeled_alternating_top name="list">
+				<anchored height="408">
+					<left offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<datasource>.flasks</datasource>
+				<class>bettertools_herbalism_flask</class>
+			</list_content_labeled_alternating_top>
+
+			<anchor_list_content_label_left />
+			<anchor_list_content_label_right />
+			<spacer_list_content_button_label_left name="flask_idelete_header" />
+			<spacer_list_content_button_label_left name="spacer_drink" />
+			<spacer_list_content_button_label_left name="spacer_empty" />
+			<label_list_content_number_left name="label_portions">
+				<anchored width="45" />
+				<static text="Port." />
+			</label_list_content_number_left>
+			<label_list_content_number_left name="label_level">
+				<anchored width="32" />
+				<static text="St." />
+			</label_list_content_number_left>
+			<label_list_content_number_left name="label_next">
+				<anchored width="45" />
+				<static text="Next" />
+			</label_list_content_number_left>
+			<label_list_content_noframe name="label_name">
+				<static text="Kraut / Effekt" />
+			</label_list_content_noframe>
+
+			<ft_content_noframe_noscroll_top name="text">
+				<anchored>
+					<top parent="list" anchor="bottom" relation="relative" offset="26" postoffset="0" />
+				</anchored>
+			</ft_content_noframe_noscroll_top>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_herbalism_flask">
+		<placement>
+			<size width="650" height="66" />
+		</placement>
+		<margins control="0,0,0,2" />
+		<script file="campaign/scripts/kraeuterkundeausruestung/bettertools_herbalism_flask.lua" />
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<button_listitem_idelete_left name="idelete" />
+			<spacer_listitem_idelete_left name="idelete_spacer" />
+			<button_listitem_roll_left name="drink_button">
+				<tooltip text="Trank trinken oder an Ziel verabreichen" />
+				<script>
+					function onButtonPress()
+						window.drink();
+					end
+				</script>
+			</button_listitem_roll_left>
+			<button_listitem_roll_left name="empty_button">
+				<tooltip text="Flakon aussch&#252;tten" />
+				<script>
+					function onButtonPress()
+						window.empty();
+					end
+				</script>
+			</button_listitem_roll_left>
+			<number_listitem_left name="portions">
+				<anchored width="45" />
+				<min value="0" />
+				<nodrag />
+				<script>
+					function onValueChanged()
+						window.onPortionsChanged();
+					end
+				</script>
+			</number_listitem_left>
+			<number_listitem_left name="level">
+				<anchored width="32" />
+				<readonly />
+				<nodrag />
+			</number_listitem_left>
+			<number_listitem_left name="nextgoal">
+				<anchored width="45" />
+				<readonly />
+				<nodrag />
+				<hideonvalue value="0" />
+			</number_listitem_left>
+
+			<button_text name="herb_button">
+				<anchored to="rightanchor" height="20" width="80">
+					<top />
+					<left parent="leftanchor" relation="current" offset="5" />
+				</anchored>
+				<state text="Kraut" />
+				<script>
+					function onButtonPress()
+						window.openHerbPicker();
+					end
+				</script>
+			</button_text>
+			<stringu name="herblabel">
+				<anchored to="rightanchor" height="20">
+					<top />
+					<left parent="herb_button" anchor="right" relation="relative" offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<readonly />
+				<nodrag />
+			</stringu>
+			<stringfield name="herb">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+				<script>
+					function onValueChanged()
+						window.onHerbChanged();
+					end
+				</script>
+			</stringfield>
+
+			<stringu name="effecttext">
+				<anchored to="rightanchor" height="20">
+					<top offset="22" />
+					<left parent="leftanchor" relation="current" offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<readonly />
+				<nodrag />
+			</stringu>
+			<stringu name="effectcode">
+				<anchored to="rightanchor" height="20">
+					<top offset="44" />
+					<left parent="leftanchor" relation="current" offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<readonly />
+				<nodrag />
+			</stringu>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_herbalism_herb_picker" copy="record_window">
+		<placement>
+			<size width="360" height="390" />
+		</placement>
+		<sizelimits>
+			<minimum width="360" height="390" />
+		</sizelimits>
+		<script>
+			function choose(sHerb)
+				BetterToolsHerbalismManager.chooseHerb(getDatabaseNode(), sHerb);
+				self.close();
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<button_text name="pick_ruestflechte">
+				<anchored to="contentanchor" height="22">
+					<top relation="relative" offset="2" />
+					<left offset="12" />
+					<right offset="-12" />
+				</anchored>
+				<state text="R&#252;stflechte" />
+				<script>function onButtonPress() window.choose("ruestflechte"); end</script>
+			</button_text>
+			<button_text name="pick_allwettermoos">
+				<anchored to="pick_ruestflechte" height="22">
+					<top anchor="bottom" relation="relative" offset="8" />
+					<left />
+					<right />
+				</anchored>
+				<state text="Allwettermoos" />
+				<script>function onButtonPress() window.choose("allwettermoos"); end</script>
+			</button_text>
+
+			<button_text name="pick_klingenblaetter">
+				<anchored to="pick_allwettermoos" height="22">
+					<top anchor="bottom" relation="relative" offset="8" />
+					<left />
+					<right />
+				</anchored>
+				<state text="Klingenbl&#228;tter" />
+				<script>function onButtonPress() window.choose("klingenblaetter"); end</script>
+			</button_text>
+			<button_text name="pick_vitalblueten">
+				<anchored to="pick_klingenblaetter" height="22">
+					<top anchor="bottom" relation="relative" offset="8" />
+					<left />
+					<right />
+				</anchored>
+				<state text="Vitalbl&#252;ten" />
+				<script>function onButtonPress() window.choose("vitalblueten"); end</script>
+			</button_text>
+
+			<button_text name="pick_zitterstiele">
+				<anchored to="pick_vitalblueten" height="22">
+					<top anchor="bottom" relation="relative" offset="8" />
+					<left />
+					<right />
+				</anchored>
+				<state text="Zitterstiele" />
+				<script>function onButtonPress() window.choose("zitterstiele"); end</script>
+			</button_text>
+			<button_text name="pick_raschroeschen">
+				<anchored to="pick_zitterstiele" height="22">
+					<top anchor="bottom" relation="relative" offset="8" />
+					<left />
+					<right />
+				</anchored>
+				<state text="Raschr&#246;schen" />
+				<script>function onButtonPress() window.choose("raschroeschen"); end</script>
+			</button_text>
+
+			<button_text name="pick_kraftkaffee">
+				<anchored to="pick_raschroeschen" height="22">
+					<top anchor="bottom" relation="relative" offset="8" />
+					<left />
+					<right />
+				</anchored>
+				<state text="Kraftkaffee" />
+				<script>function onButtonPress() window.choose("kraftkaffee"); end</script>
+			</button_text>
+			<button_text name="pick_witterwurz">
+				<anchored to="pick_kraftkaffee" height="22">
+					<top anchor="bottom" relation="relative" offset="8" />
+					<left />
+					<right />
+				</anchored>
+				<state text="Witterwurz" />
+				<script>function onButtonPress() window.choose("witterwurz"); end</script>
+			</button_text>
+
+			<button_text name="pick_stoika">
+				<anchored to="pick_witterwurz" height="22">
+					<top anchor="bottom" relation="relative" offset="8" />
+					<left />
+					<right />
+				</anchored>
+				<state text="Stoika" />
+				<script>function onButtonPress() window.choose("stoika"); end</script>
+			</button_text>
+			<button_text name="pick_klaerrauke">
+				<anchored to="pick_stoika" height="22">
+					<top anchor="bottom" relation="relative" offset="8" />
+					<left />
+					<right />
+				</anchored>
+				<state text="Kl&#228;rrauke" />
+				<script>function onButtonPress() window.choose("klaerrauke"); end</script>
+			</button_text>
+		</sheetdata>
+	</windowclass>
+
 	<windowclass name="charsheet" merge="join">
 		<tab merge="add" insertbefore="abilities">
 			<name>tools</name>

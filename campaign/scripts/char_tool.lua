@@ -43,6 +43,10 @@ function openToolLink()
 		self.openSmithingToolWindow();
 		return;
 	end
+	if StringManager.trim(name.getValue()) == "Kräuterkundeausrüstung" then
+		self.openHerbalismToolWindow();
+		return;
+	end
 
 	local nodeItem = RecordManager.findRecordByStringI("item", "name", name.getValue());
 	if nodeItem then
@@ -77,6 +81,15 @@ function openSmithingToolWindow()
 	DB.setValue(nodeSmithing, "name", "string", "Schmiedewerkzeug");
 	DB.setValue(nodeSmithing, "text", "formattedtext", BetterToolsSmithingManager.getToolText());
 	Interface.openWindow("ref_ability", nodeSmithing);
+end
+
+function openHerbalismToolWindow()
+	local nodeTool = getDatabaseNode();
+	local nodeChar = DB.getChild(nodeTool, "...");
+	local nodeHerbalism = DB.createChild(nodeChar, "bettertools.herbalism");
+	DB.setValue(nodeHerbalism, "name", "string", "Kräuterkundeausrüstung");
+	DB.setValue(nodeHerbalism, "text", "formattedtext", BetterToolsHerbalismManager.getToolText());
+	Interface.openWindow("bettertools_herbalism", nodeHerbalism);
 end
 
 function action(draginfo)
