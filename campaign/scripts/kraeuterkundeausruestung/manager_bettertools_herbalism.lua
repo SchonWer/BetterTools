@@ -1,6 +1,8 @@
 local _tLevelPortions = { 2, 10, 20, 50, 100, 200, 300, 650 };
 local _tHerbOrder = { "ruestflechte", "allwettermoos", "klingenblaetter", "vitalblueten", "zitterstiele", "raschroeschen", "kraftkaffee", "witterwurz", "stoika", "klaerrauke" };
-local HARVEST_ROLL_TYPE = "bettertools_herbalism_harvest";
+local HARVEST_HERBS_ROLL_TYPE = "bettertools_herbalism_harvest_herbs";
+local HARVEST_PORTIONS_ROLL_TYPE = "bettertools_herbalism_harvest_portions";
+local _tHarvestSessions = {};
 
 local _tHerbs = {
 	ruestflechte = {
@@ -321,7 +323,8 @@ local _tHerbs = {
 };
 
 function onInit()
-	ActionsManager.registerResultHandler(HARVEST_ROLL_TYPE, BetterToolsHerbalismManager.onHarvestRoll);
+	ActionsManager.registerResultHandler(HARVEST_HERBS_ROLL_TYPE, BetterToolsHerbalismManager.onHarvestHerbsRoll);
+	ActionsManager.registerResultHandler(HARVEST_PORTIONS_ROLL_TYPE, BetterToolsHerbalismManager.onHarvestPortionsRoll);
 end
 
 function getToolText()
@@ -535,6 +538,30 @@ function getActorFromToolNode(nodeHerbalism)
 	return ActorManager.resolveActor(nodeChar), nodeChar;
 end
 
+function getCharacterNodeFromFlask(nodeFlask)
+	if not nodeFlask then
+		return nil;
+	end
+
+	local sPath = DB.getPath(nodeFlask);
+	local sCharPath = sPath:match("^(.-)%.bettertools%.herbalism%.flasks%.");
+	if sCharPath then
+		return DB.findNode(sCharPath);
+	end
+	return DB.getChild(nodeFlask, ".....");
+end
+
+function getAdministrationTargets(rActor)
+	local tTargets = {};
+	if rActor then
+		tTargets = TargetingManager.getFullTargets(rActor) or {};
+		if #tTargets == 0 then
+			table.insert(tTargets, rActor);
+		end
+	end
+	return tTargets;
+end
+
 function getProficiencyBonus(rActor, nodeChar)
 	local nProf = 2;
 	if ActorManager5E and ActorManager5E.getAbilityBonus then
@@ -579,66 +606,576 @@ function performHarvest(nodeHerbalism, nHours)
 		return;
 	end
 
-	local aDice = {};
-	for _ = 1, nHours do
-		for _ = 1, nProf do
-			table.insert(aDice, "d10");
-		end
-		table.insert(aDice, "d20");
-	end
-
-	local rRoll = {
-		sType = HARVEST_ROLL_TYPE,
-		sDesc = "[BetterTools] Kräuter sammeln: " .. nHours .. " Stunde(n)",
-		aDice = aDice,
-		nMod = 0,
+	local nToolTotal = BetterToolsHerbalismManager.getHerbalismTotal(nodeChar);
+	local sSession = tostring(os.time()) .. "-" .. tostring(math.random(1000000));
+	_tHarvestSessions[sSession] = {
 		nHours = nHours,
 		nProf = nProf,
-		nToolTotal = BetterToolsHerbalismManager.getHerbalismTotal(nodeChar),
-	};
-	ActionsManager.performAction(nil, rActor, rRoll);
-end
-
-function onHarvestRoll(rSource, _, rRoll)
-	local nHours = tonumber(rRoll.nHours) or 1;
-	local nProf = tonumber(rRoll.nProf) or 1;
-	local nToolTotal = tonumber(rRoll.nToolTotal) or 0;
-	local nDieIndex = 1;
-	local tTotals = {};
-	local tLines = {
-		"Kräuter sammeln: " .. nHours .. " Stunde(n)",
-		"Übungsbonus: " .. nProf .. "; Weisheit (Kräuterkundeausrüstung): " .. (nToolTotal >= 0 and "+" or "") .. nToolTotal,
+		nToolTotal = nToolTotal,
+		nExpected = nHours * 2,
+		nReceived = 0,
+		tHours = {},
+		tTotals = {},
 	};
 
 	for nHour = 1, nHours do
-		local tHerbRolls = {};
+		_tHarvestSessions[sSession].tHours[nHour] = { nHour = nHour, nPortions = 0, tHerbs = {} };
+
+		local tHerbDice = {};
 		for _ = 1, nProf do
-			local nHerbRoll = BetterToolsHerbalismManager.getDieResult(rRoll.aDice[nDieIndex]);
-			nDieIndex = nDieIndex + 1;
-			local sHerb = BetterToolsHerbalismManager.getHerbByRoll(nHerbRoll);
-			tTotals[sHerb] = (tTotals[sHerb] or 0) + 1;
-			table.insert(tHerbRolls, nHerbRoll .. " " .. BetterToolsHerbalismManager.getHerbLabel(sHerb));
+			table.insert(tHerbDice, "d10");
 		end
+		ActionsManager.performAction(nil, rActor, {
+			sType = HARVEST_HERBS_ROLL_TYPE,
+			sDesc = "[BetterTools] Kräuter sammeln - Stunde " .. nHour .. ": Kräuterarten",
+			aDice = tHerbDice,
+			nMod = 0,
+			sSession = sSession,
+			nHour = nHour,
+		});
 
-		local nD20 = BetterToolsHerbalismManager.getDieResult(rRoll.aDice[nDieIndex]);
-		nDieIndex = nDieIndex + 1;
-		local nPortions = math.max(nD20 + nToolTotal, 0);
-		table.insert(tLines, "Stunde " .. nHour .. ": " .. table.concat(tHerbRolls, ", ") .. "; Portionenwurf " .. nD20 .. " + " .. nToolTotal .. " = " .. nPortions .. " Portionen.");
+		ActionsManager.performAction(nil, rActor, {
+			sType = HARVEST_PORTIONS_ROLL_TYPE,
+			sDesc = "[BetterTools] Kräuter sammeln - Stunde " .. nHour .. ": Portionen",
+			aDice = { "d20" },
+			nMod = nToolTotal,
+			sSession = sSession,
+			nHour = nHour,
+		});
+	end
+end
+
+function getHarvestSession(rRoll)
+	return _tHarvestSessions[rRoll.sSession or ""];
+end
+
+function onHarvestHerbsRoll(rSource, _, rRoll)
+	local tSession = BetterToolsHerbalismManager.getHarvestSession(rRoll);
+	if not tSession then
+		return;
 	end
 
-	table.insert(tLines, "");
-	table.insert(tLines, "Gefundene Kräuterarten gesamt:");
-	for _, sHerb in ipairs(_tHerbOrder) do
-		if (tTotals[sHerb] or 0) > 0 then
-			table.insert(tLines, "- " .. BetterToolsHerbalismManager.getHerbLabel(sHerb) .. ": " .. tTotals[sHerb] .. "x gefunden");
-		end
+	local nHour = tonumber(rRoll.nHour) or 1;
+	local tHour = tSession.tHours[nHour] or { nHour = nHour, nPortions = 0, tHerbs = {} };
+	tSession.tHours[nHour] = tHour;
+
+	local tLines = {};
+	for _, tDie in ipairs(rRoll.aDice or {}) do
+		local nHerbRoll = BetterToolsHerbalismManager.getDieResult(tDie);
+		local sHerb = BetterToolsHerbalismManager.getHerbByRoll(nHerbRoll);
+		tHour.tHerbs[sHerb] = true;
+		tSession.tTotals[sHerb] = (tSession.tTotals[sHerb] or 0) + 1;
+		table.insert(tLines, nHerbRoll .. ": " .. BetterToolsHerbalismManager.getHerbLabel(sHerb));
 	end
-	table.insert(tLines, "");
-	table.insert(tLines, "Die Portionen pro Stunde können beliebig auf die jeweils gefundenen Kräuter verteilt werden.");
 
 	local msg = ActionsManager.createActionMessage(rSource, rRoll);
-	msg.text = msg.text .. "\r" .. table.concat(tLines, "\r");
+	msg.text = msg.text .. "\rGefunden:\r" .. table.concat(tLines, "\r");
 	Comm.deliverChatMessage(msg);
+
+	BetterToolsHerbalismManager.completeHarvestRoll(rSource, rRoll.sSession);
+end
+
+function onHarvestPortionsRoll(rSource, _, rRoll)
+	local tSession = BetterToolsHerbalismManager.getHarvestSession(rRoll);
+	if not tSession then
+		return;
+	end
+
+	local nHour = tonumber(rRoll.nHour) or 1;
+	local tHour = tSession.tHours[nHour] or { nHour = nHour, nPortions = 0, tHerbs = {} };
+	tSession.tHours[nHour] = tHour;
+
+	local nD20 = BetterToolsHerbalismManager.getDieResult((rRoll.aDice or {})[1]);
+	local nToolTotal = tonumber(rRoll.nMod) or tonumber(tSession.nToolTotal) or 0;
+	local nPortions = math.max(nD20 + nToolTotal, 0);
+	tHour.nPortions = nPortions;
+
+	local msg = ActionsManager.createActionMessage(rSource, rRoll);
+	msg.text = msg.text .. "\rPortionen: " .. nD20 .. " + " .. nToolTotal .. " = " .. nPortions;
+	Comm.deliverChatMessage(msg);
+
+	BetterToolsHerbalismManager.completeHarvestRoll(rSource, rRoll.sSession);
+end
+
+function completeHarvestRoll(rActor, sSession)
+	local tSession = _tHarvestSessions[sSession or ""];
+	if not tSession then
+		return;
+	end
+
+	tSession.nReceived = (tSession.nReceived or 0) + 1;
+	if tSession.nReceived < (tSession.nExpected or 0) then
+		return;
+	end
+
+	local tHours = {};
+	for nHour = 1, tSession.nHours do
+		table.insert(tHours, tSession.tHours[nHour] or { nHour = nHour, nPortions = 0, tHerbs = {} });
+	end
+	_tHarvestSessions[sSession or ""] = nil;
+	BetterToolsHerbalismManager.openHarvestResult(rActor, tHours);
+end
+
+function openHarvestResult(rActor, tHours)
+	local nodeChar = ActorManager.getCreatureNode(rActor);
+	local nodeHerbalism = nodeChar and DB.createChild(nodeChar, "bettertools.herbalism");
+	if not nodeHerbalism then
+		ChatManager.SystemMessage("BetterTools: Kräuterkundeausrüstung konnte nicht gefunden werden; Verteilfenster nicht geöffnet.");
+		return;
+	end
+
+	local nodeResults = DB.createChild(nodeHerbalism, "harvestresults");
+	local nodeResult = DB.createChild(nodeResults);
+	if not nodeResult then
+		return;
+	end
+	DB.setValue(nodeResult, "name", "string", "Kräuter verteilen");
+	DB.setValue(nodeResult, "targetpath", "string", DB.getPath(nodeHerbalism));
+
+	local nodeHours = DB.createChild(nodeResult, "hours");
+	local nodeEntries = DB.createChild(nodeResult, "entries");
+	for nHourIndex, tHour in ipairs(tHours or {}) do
+		local nodeHour = DB.createChild(nodeHours);
+		DB.setValue(nodeHour, "hour", "number", tHour.nHour or 0);
+		DB.setValue(nodeHour, "remaining", "number", tHour.nPortions or 0);
+		DB.setValue(nodeHour, "name", "string", "Stunde " .. (tHour.nHour or 0) .. " - Rest " .. (tHour.nPortions or 0));
+
+		if nHourIndex > 1 then
+			local nodeSpacer = DB.createChild(nodeEntries);
+			DB.setValue(nodeSpacer, "isspacer", "number", 1);
+			DB.setValue(nodeSpacer, "hour", "number", tHour.nHour or 0);
+		end
+
+		local nodeHeader = DB.createChild(nodeEntries);
+		DB.setValue(nodeHeader, "isheader", "number", 1);
+		DB.setValue(nodeHeader, "hour", "number", tHour.nHour or 0);
+		DB.setValue(nodeHeader, "hourpath", "string", DB.getPath(nodeHour));
+		DB.setValue(nodeHeader, "resultpath", "string", DB.getPath(nodeResult));
+		DB.setValue(nodeHeader, "groupname", "string", "Stunde " .. (tHour.nHour or 0) .. " - Rest " .. (tHour.nPortions or 0));
+
+		for _, sHerb in ipairs(_tHerbOrder) do
+			if tHour.tHerbs and tHour.tHerbs[sHerb] then
+				local nodeEntry = DB.createChild(nodeEntries);
+				DB.setValue(nodeEntry, "hour", "number", tHour.nHour or 0);
+				DB.setValue(nodeEntry, "hourpath", "string", DB.getPath(nodeHour));
+				DB.setValue(nodeEntry, "resultpath", "string", DB.getPath(nodeResult));
+				DB.setValue(nodeEntry, "herb", "string", sHerb);
+				DB.setValue(nodeEntry, "herblabel", "string", BetterToolsHerbalismManager.getHerbLabel(sHerb));
+				DB.setValue(nodeEntry, "remaining", "number", tHour.nPortions or 0);
+				DB.setValue(nodeEntry, "groupname", "string", "Stunde " .. (tHour.nHour or 0) .. " - Rest " .. (tHour.nPortions or 0));
+				DB.setValue(nodeEntry, "amount", "number", 0);
+				DB.setValue(nodeEntry, "flaskno", "number", 0);
+			end
+		end
+	end
+
+	Interface.openWindow("bettertools_herbalism_harvest_result", nodeResult);
+end
+
+function syncHarvestEntryRemaining(nodeEntry)
+	if not nodeEntry then
+		return;
+	end
+	local nodeHour = DB.findNode(DB.getValue(nodeEntry, "hourpath", ""));
+	local nRemaining = nodeHour and DB.getValue(nodeHour, "remaining", 0) or 0;
+	DB.setValue(nodeEntry, "remaining", "number", nRemaining);
+end
+
+function syncHarvestResultRemaining(nodeResult, nHour, nRemaining)
+	if not nodeResult then
+		return;
+	end
+	for _, nodeEntry in ipairs(DB.getChildList(nodeResult, "entries")) do
+		if DB.getValue(nodeEntry, "hour", 0) == nHour then
+			DB.setValue(nodeEntry, "groupname", "string", "Stunde " .. (nHour or 0) .. " - Rest " .. nRemaining);
+			if DB.getValue(nodeEntry, "isheader", 0) == 0 then
+				DB.setValue(nodeEntry, "remaining", "number", nRemaining);
+				if DB.getValue(nodeEntry, "amount", 0) > nRemaining then
+					DB.setValue(nodeEntry, "amount", "number", nRemaining);
+				end
+			end
+		end
+	end
+	for _, nodeHour in ipairs(DB.getChildList(nodeResult, "hours")) do
+		if DB.getValue(nodeHour, "hour", 0) == nHour then
+			DB.setValue(nodeHour, "remaining", "number", nRemaining);
+			DB.setValue(nodeHour, "name", "string", "Stunde " .. (nHour or 0) .. " - Rest " .. nRemaining);
+		end
+	end
+	if BetterToolsHerbalismManager.isHarvestResultComplete(nodeResult) then
+		DB.setValue(nodeResult, "completed", "number", 1);
+	elseif nRemaining <= 0 then
+		BetterToolsHerbalismManager.hideCompletedHarvestHour(nodeResult, nHour);
+	end
+end
+
+function deleteHarvestEntryNode(nodeEntry)
+	if not nodeEntry then
+		return;
+	end
+	local bDeleted = false;
+	if DB.deleteNode then
+		bDeleted = pcall(DB.deleteNode, nodeEntry);
+		if not bDeleted then
+			bDeleted = pcall(DB.deleteNode, DB.getPath(nodeEntry));
+		end
+	end
+	if not bDeleted and nodeEntry.delete then
+		pcall(nodeEntry.delete);
+	end
+end
+
+function cleanupHarvestSpacers(nodeResult)
+	if not nodeResult then
+		return;
+	end
+
+	local bSawVisibleRow = false;
+	local bPreviousSpacer = false;
+	local tDelete = {};
+	local tDeletePaths = {};
+	local function addSpacerForDelete(nodeEntry)
+		local sPath = DB.getPath(nodeEntry);
+		if not tDeletePaths[sPath] then
+			tDeletePaths[sPath] = true;
+			table.insert(tDelete, nodeEntry);
+		end
+	end
+	for _, nodeEntry in ipairs(DB.getChildList(nodeResult, "entries")) do
+		local bSpacer = DB.getValue(nodeEntry, "isspacer", 0) == 1;
+		if bSpacer then
+			if not bSawVisibleRow or bPreviousSpacer then
+				addSpacerForDelete(nodeEntry);
+			end
+			bPreviousSpacer = true;
+		else
+			bSawVisibleRow = true;
+			bPreviousSpacer = false;
+		end
+	end
+	if bPreviousSpacer then
+		local tEntries = DB.getChildList(nodeResult, "entries");
+		if #tEntries > 0 and DB.getValue(tEntries[#tEntries], "isspacer", 0) == 1 then
+			addSpacerForDelete(tEntries[#tEntries]);
+		end
+	end
+
+	for _, nodeEntry in ipairs(tDelete) do
+		BetterToolsHerbalismManager.deleteHarvestEntryNode(nodeEntry);
+	end
+end
+
+function hideCompletedHarvestHour(nodeResult, nHour)
+	if not nodeResult then
+		return;
+	end
+
+	local tDelete = {};
+	for _, nodeEntry in ipairs(DB.getChildList(nodeResult, "entries")) do
+		if DB.getValue(nodeEntry, "hour", 0) == nHour then
+			table.insert(tDelete, nodeEntry);
+		end
+	end
+	for _, nodeEntry in ipairs(tDelete) do
+		BetterToolsHerbalismManager.deleteHarvestEntryNode(nodeEntry);
+	end
+	BetterToolsHerbalismManager.cleanupHarvestSpacers(nodeResult);
+end
+
+function refreshHarvestFlaskChoices(nodeResult)
+	if not nodeResult then
+		return;
+	end
+	for _, nodeEntry in ipairs(DB.getChildList(nodeResult, "entries")) do
+		DB.setValue(nodeEntry, "compatibilitystamp", "number", DB.getValue(nodeEntry, "compatibilitystamp", 0) + 1);
+	end
+end
+
+function isHarvestResultComplete(nodeResult)
+	if not nodeResult then
+		return false;
+	end
+	for _, nodeHour in ipairs(DB.getChildList(nodeResult, "hours")) do
+		if DB.getValue(nodeHour, "remaining", 0) > 0 then
+			return false;
+		end
+	end
+	return DB.getChildCount(nodeResult, "hours") > 0;
+end
+
+function getFlaskByIndex(nodeHerbalism, nFlask)
+	nFlask = math.max(tonumber(nFlask) or 1, 1);
+	local nodeFlasks = DB.createChild(nodeHerbalism, "flasks");
+	local tFlasks = DB.getChildList(nodeFlasks);
+	for _ = #tFlasks + 1, 6 do
+		table.insert(tFlasks, DB.createChild(nodeFlasks));
+	end
+	return tFlasks[math.min(nFlask, #tFlasks)];
+end
+
+function isFlaskCompatibleForHerb(nodeHerbalism, sHerb, nFlask)
+	if not nodeHerbalism or (sHerb or "") == "" then
+		return false;
+	end
+	nFlask = math.max(tonumber(nFlask) or 1, 1);
+	if nFlask > 6 then
+		return false;
+	end
+
+	local nodeFlask = BetterToolsHerbalismManager.getFlaskByIndex(nodeHerbalism, nFlask);
+	if not nodeFlask then
+		return false;
+	end
+
+	local sFlaskHerb = DB.getValue(nodeFlask, "herb", "");
+	if sFlaskHerb == "" or sFlaskHerb == sHerb then
+		return true;
+	end
+
+	local tFlaskHerb = BetterToolsHerbalismManager.getHerbData(sFlaskHerb);
+	local tNewHerb = BetterToolsHerbalismManager.getHerbData(sHerb);
+	return (tFlaskHerb.family or "") ~= "" and tFlaskHerb.family == tNewHerb.family;
+end
+
+function getPreferredFlaskForHerb(nodeHerbalism, sHerb)
+	if not nodeHerbalism or (sHerb or "") == "" then
+		return 0;
+	end
+
+	for i = 1, 6 do
+		local nodeFlask = BetterToolsHerbalismManager.getFlaskByIndex(nodeHerbalism, i);
+		if DB.getValue(nodeFlask, "herb", "") == sHerb then
+			return i;
+		end
+	end
+	for i = 1, 6 do
+		if BetterToolsHerbalismManager.isFlaskCompatibleForHerb(nodeHerbalism, sHerb, i) then
+			return i;
+		end
+	end
+	return 0;
+end
+
+function isHarvestFlaskCompatible(nodeEntry, nFlask)
+	if not nodeEntry or DB.getValue(nodeEntry, "isheader", 0) == 1 then
+		return false;
+	end
+	nFlask = math.max(tonumber(nFlask) or 1, 1);
+	if nFlask > 6 then
+		return false;
+	end
+
+	local nodeResult = DB.findNode(DB.getValue(nodeEntry, "resultpath", ""));
+	local nodeHerbalism = nodeResult and DB.findNode(DB.getValue(nodeResult, "targetpath", ""));
+	if not nodeHerbalism then
+		return false;
+	end
+
+	local sHerb = DB.getValue(nodeEntry, "herb", "");
+	if sHerb == "" then
+		return false;
+	end
+
+	return BetterToolsHerbalismManager.isFlaskCompatibleForHerb(nodeHerbalism, sHerb, nFlask);
+end
+
+function getPreferredHarvestFlask(nodeEntry)
+	if not nodeEntry or DB.getValue(nodeEntry, "isheader", 0) == 1 then
+		return 0;
+	end
+
+	local nodeResult = DB.findNode(DB.getValue(nodeEntry, "resultpath", ""));
+	local nodeHerbalism = nodeResult and DB.findNode(DB.getValue(nodeResult, "targetpath", ""));
+	if not nodeHerbalism then
+		return 0;
+	end
+
+	local sHerb = DB.getValue(nodeEntry, "herb", "");
+	if sHerb == "" then
+		return 0;
+	end
+
+	return BetterToolsHerbalismManager.getPreferredFlaskForHerb(nodeHerbalism, sHerb);
+end
+
+function addPortionsToFlask(nodeHerbalism, sHerb, nAmount, nFlask)
+	nAmount = math.max(tonumber(nAmount) or 0, 0);
+	if not nodeHerbalism or (sHerb or "") == "" or nAmount <= 0 then
+		return false, "BetterTools: Keine Portionen zum Einfüllen gefunden.", 0;
+	end
+
+	local nodeFlask = BetterToolsHerbalismManager.getFlaskByIndex(nodeHerbalism, nFlask);
+	if not nodeFlask then
+		return false, "BetterTools: Flakon nicht gefunden.", 0;
+	end
+
+	local sFlaskHerb = DB.getValue(nodeFlask, "herb", "");
+	if sFlaskHerb ~= "" and sFlaskHerb ~= sHerb then
+		local tFlaskHerb = BetterToolsHerbalismManager.getHerbData(sFlaskHerb);
+		local tNewHerb = BetterToolsHerbalismManager.getHerbData(sHerb);
+		if (tFlaskHerb.family or "") == "" or tFlaskHerb.family ~= tNewHerb.family then
+			return false, "BetterTools: Dieser Flakon enthält ein Kraut aus einer anderen Familie.", 0;
+		end
+	end
+
+	local nProgress = nAmount;
+	if sFlaskHerb ~= "" and sFlaskHerb ~= sHerb then
+		nProgress = math.floor(nAmount / 2);
+		if nProgress <= 0 then
+			return false, "BetterTools: Bei Familienmischung zählt nur die Hälfte; wähle mindestens 2 Portionen.", 0;
+		end
+	end
+
+	if sFlaskHerb == "" then
+		DB.setValue(nodeFlask, "herb", "string", sHerb);
+		DB.setValue(nodeFlask, "herblabel", "string", BetterToolsHerbalismManager.getHerbLabel(sHerb));
+	end
+	DB.setValue(nodeFlask, "portions", "number", DB.getValue(nodeFlask, "portions", 0) + nProgress);
+
+	return true, "", nProgress;
+end
+
+function allocateHarvestEntry(nodeEntry)
+	if not nodeEntry then
+		return;
+	end
+
+	local nodeResult = DB.findNode(DB.getValue(nodeEntry, "resultpath", ""));
+	local nodeHerbalism = DB.findNode(DB.getValue(nodeResult, "targetpath", ""));
+	local nodeHour = DB.findNode(DB.getValue(nodeEntry, "hourpath", ""));
+	if not nodeHerbalism or not nodeHour then
+		ChatManager.SystemMessage("BetterTools: Verteilziel nicht gefunden.");
+		return;
+	end
+
+	local nAmount = math.max(DB.getValue(nodeEntry, "amount", 0), 0);
+	local nRemaining = DB.getValue(nodeHour, "remaining", 0);
+	if nAmount <= 0 then
+		ChatManager.SystemMessage("BetterTools: Wähle zuerst eine Portionsmenge.");
+		return;
+	end
+	if nAmount > nRemaining then
+		ChatManager.SystemMessage("BetterTools: Diese Sammelstunde hat nur noch " .. nRemaining .. " Portionen übrig.");
+		return;
+	end
+
+	local sHerb = DB.getValue(nodeEntry, "herb", "");
+	local nFlask = DB.getValue(nodeEntry, "flaskno", 1);
+	local bAdded, sError, nProgress = BetterToolsHerbalismManager.addPortionsToFlask(nodeHerbalism, sHerb, nAmount, nFlask);
+	if not bAdded then
+		ChatManager.SystemMessage(sError);
+		return;
+	end
+	DB.setValue(nodeHour, "remaining", "number", nRemaining - nAmount);
+	DB.setValue(nodeEntry, "amount", "number", 0);
+	BetterToolsHerbalismManager.syncHarvestResultRemaining(nodeResult, DB.getValue(nodeEntry, "hour", 0), nRemaining - nAmount);
+	BetterToolsHerbalismManager.refreshHarvestFlaskChoices(nodeResult);
+
+	local sLine = nAmount .. " Portion(en) " .. BetterToolsHerbalismManager.getHerbLabel(sHerb) .. " in Flakon " .. nFlask;
+	if nProgress ~= nAmount then
+		sLine = sLine .. " (" .. nProgress .. " Fortschritt durch Familienmischung)";
+	end
+	ChatManager.SystemMessage("BetterTools: " .. sLine .. ".");
+end
+
+function canAddPortionsToFlaskState(tFlaskHerbs, nFlask, sHerb, nAmount)
+	nFlask = math.max(tonumber(nFlask) or 1, 1);
+	nAmount = math.max(tonumber(nAmount) or 0, 0);
+	local sFlaskHerb = tFlaskHerbs[nFlask] or "";
+	if sFlaskHerb ~= "" and sFlaskHerb ~= sHerb then
+		local tFlaskHerb = BetterToolsHerbalismManager.getHerbData(sFlaskHerb);
+		local tNewHerb = BetterToolsHerbalismManager.getHerbData(sHerb);
+		if (tFlaskHerb.family or "") == "" or tFlaskHerb.family ~= tNewHerb.family then
+			return false, "BetterTools: Flakon " .. nFlask .. " enthält ein Kraut aus einer anderen Familie.", 0;
+		end
+	end
+
+	local nProgress = nAmount;
+	if sFlaskHerb ~= "" and sFlaskHerb ~= sHerb then
+		nProgress = math.floor(nAmount / 2);
+		if nProgress <= 0 then
+			return false, "BetterTools: Bei Familienmischung zählt nur die Hälfte; wähle mindestens 2 Portionen.", 0;
+		end
+	end
+	if sFlaskHerb == "" then
+		tFlaskHerbs[nFlask] = sHerb;
+	end
+	return true, "", nProgress;
+end
+
+function allocateHarvestHour(nodeHeader)
+	if not nodeHeader then
+		return;
+	end
+	local nodeResult = DB.findNode(DB.getValue(nodeHeader, "resultpath", ""));
+	local nodeHerbalism = nodeResult and DB.findNode(DB.getValue(nodeResult, "targetpath", ""));
+	local nodeHour = DB.findNode(DB.getValue(nodeHeader, "hourpath", ""));
+	if not nodeResult or not nodeHerbalism or not nodeHour then
+		ChatManager.SystemMessage("BetterTools: Verteilziel nicht gefunden.");
+		return;
+	end
+
+	local nHour = DB.getValue(nodeHeader, "hour", 0);
+	local nRemaining = DB.getValue(nodeHour, "remaining", 0);
+	local nTotalAmount = 0;
+	local tEntries = {};
+	for _, nodeEntry in ipairs(DB.getChildList(nodeResult, "entries")) do
+		if DB.getValue(nodeEntry, "isheader", 0) == 0 and DB.getValue(nodeEntry, "hour", 0) == nHour then
+			local nAmount = math.max(DB.getValue(nodeEntry, "amount", 0), 0);
+			if nAmount > 0 then
+				nTotalAmount = nTotalAmount + nAmount;
+				table.insert(tEntries, nodeEntry);
+			end
+		end
+	end
+
+	if #tEntries == 0 then
+		ChatManager.SystemMessage("BetterTools: Für diese Stunde wurden keine Portionen eingetragen.");
+		return;
+	end
+	if nTotalAmount > nRemaining then
+		ChatManager.SystemMessage("BetterTools: Stunde " .. nHour .. " hat nur noch " .. nRemaining .. " Portionen übrig.");
+		return;
+	end
+
+	local tFlaskHerbs = {};
+	for i = 1, 6 do
+		local nodeFlask = BetterToolsHerbalismManager.getFlaskByIndex(nodeHerbalism, i);
+		tFlaskHerbs[i] = DB.getValue(nodeFlask, "herb", "");
+	end
+
+	local tPlanned = {};
+	for _, nodeEntry in ipairs(tEntries) do
+		local sHerb = DB.getValue(nodeEntry, "herb", "");
+		local nAmount = math.max(DB.getValue(nodeEntry, "amount", 0), 0);
+		local nFlask = DB.getValue(nodeEntry, "flaskno", 1);
+		local bValid, sError, nProgress = BetterToolsHerbalismManager.canAddPortionsToFlaskState(tFlaskHerbs, nFlask, sHerb, nAmount);
+		if not bValid then
+			ChatManager.SystemMessage(sError);
+			return;
+		end
+		table.insert(tPlanned, { nodeEntry = nodeEntry, sHerb = sHerb, nAmount = nAmount, nFlask = nFlask, nProgress = nProgress });
+	end
+
+	local tLines = { "BetterTools: Stunde " .. nHour .. " verteilt:" };
+	for _, tPlan in ipairs(tPlanned) do
+		local bAdded, sError, nProgress = BetterToolsHerbalismManager.addPortionsToFlask(nodeHerbalism, tPlan.sHerb, tPlan.nAmount, tPlan.nFlask);
+		if not bAdded then
+			ChatManager.SystemMessage(sError);
+			return;
+		end
+		DB.setValue(tPlan.nodeEntry, "amount", "number", 0);
+		local sLine = "- " .. tPlan.nAmount .. " " .. BetterToolsHerbalismManager.getHerbLabel(tPlan.sHerb) .. " -> Flakon " .. tPlan.nFlask;
+		if nProgress ~= tPlan.nAmount then
+			sLine = sLine .. " (" .. nProgress .. " Fortschritt)";
+		end
+		table.insert(tLines, sLine);
+	end
+
+	DB.setValue(nodeHour, "remaining", "number", nRemaining - nTotalAmount);
+	BetterToolsHerbalismManager.syncHarvestResultRemaining(nodeResult, nHour, nRemaining - nTotalAmount);
+	BetterToolsHerbalismManager.refreshHarvestFlaskChoices(nodeResult);
+	ChatManager.SystemMessage(table.concat(tLines, "\r"));
 end
 
 function openHerbPicker(nodeTarget, sField)
@@ -669,7 +1206,7 @@ function chooseHerb(nodePicker, sHerb)
 	DB.setValue(nodeTarget, sField .. "label", "string", BetterToolsHerbalismManager.getHerbLabel(sHerb));
 end
 
-function performDowntime(nodeHerbalism, sHerb, nDays)
+function performDowntime(nodeHerbalism, sHerb, nDays, nFlask)
 	local rActor, nodeChar = BetterToolsHerbalismManager.getActorFromToolNode(nodeHerbalism);
 	sHerb = sHerb or "";
 	if sHerb == "" then
@@ -678,17 +1215,27 @@ function performDowntime(nodeHerbalism, sHerb, nDays)
 	end
 
 	nDays = math.max(tonumber(nDays) or 1, 1);
+	nFlask = math.max(tonumber(nFlask) or 1, 1);
 	local nProf = BetterToolsHerbalismManager.getProficiencyBonus(rActor, nodeChar);
 	local nWisMod = BetterToolsHerbalismManager.getWisdomMod(nodeChar);
 	local nPerDay = math.max((nProf + nWisMod) * 3, 0);
 	local nTotal = nPerDay * nDays;
+	local bAdded, sError, nProgress = BetterToolsHerbalismManager.addPortionsToFlask(nodeHerbalism, sHerb, nTotal, nFlask);
+	if not bAdded then
+		ChatManager.SystemMessage(sError);
+		return;
+	end
 
 	local tLines = {
 		"Kräutersuche zwischen Abenteuern:",
 		BetterToolsHerbalismManager.getHerbLabel(sHerb) .. " für " .. nDays .. " Tag(e)",
 		"(" .. nProf .. " Übungsbonus + " .. nWisMod .. " Weisheitsmod.) x 3 = " .. nPerDay .. " Portionen pro Tag",
 		"Gesamt: " .. nTotal .. " Portionen",
+		"Flakon " .. nFlask .. ": +" .. nProgress .. " Trankfortschritt",
 	};
+	if nProgress ~= nTotal then
+		table.insert(tLines, "Familienmischung: Nur die Hälfte der Portionen zählt als Fortschritt.");
+	end
 
 	local msg = ChatManager.createBaseMessage(rActor);
 	msg.text = table.concat(tLines, "\r");
@@ -708,24 +1255,20 @@ function drinkFlask(nodeFlask)
 		return;
 	end
 
-	local nodeChar = DB.getChild(nodeFlask, ".....");
+	local nodeChar = BetterToolsHerbalismManager.getCharacterNodeFromFlask(nodeFlask);
 	local rActor = ActorManager.resolveActor(nodeChar);
-	local tTargets = TargetingManager.getFullTargets(rActor);
-	if #tTargets == 0 and rActor then
-		table.insert(tTargets, rActor);
-	end
+	local tTargets = BetterToolsHerbalismManager.getAdministrationTargets(rActor);
 
 	local sLabel = BetterToolsHerbalismManager.getHerbLabel(sHerb);
 	local sEffect = BetterToolsHerbalismManager.getEffect(sHerb, nLevel);
 	local sCode = BetterToolsHerbalismManager.getEffectCode(sHerb, nLevel);
 	local tEffectApplications = BetterToolsHerbalismManager.getEffectApplications(sHerb, nLevel);
 	local tLines = {
-		"trinkt " .. sLabel .. " Stufe " .. nLevel .. ":",
+		"verabreicht " .. sLabel .. " Stufe " .. nLevel .. ":",
 		sEffect,
 	};
 
 	if sCode ~= "" then
-		table.insert(tLines, "FG-Code: " .. sCode);
 		if not BetterToolsHerbalismManager.isAutomatedEffectCode(sCode) then
 			table.insert(tLines, "Hinweis: Dieser Eintrag ist eine Notiz und muss manuell abgehandelt werden.");
 		end

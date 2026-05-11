@@ -527,6 +527,8 @@
 	<windowclass name="bettertools_herbalism_contents">
 		<margins control="0,0,0,2" />
 		<script>
+			local _bUpdatingDowntimeFlasks = false;
+
 			function onInit()
 				self.ensureDefaultFlasks();
 				self.ensureGatherDefaults();
@@ -554,9 +556,13 @@
 				if downtime_days.getValue() &lt;= 0 then
 					downtime_days.setValue(1);
 				end
+				if downtime_flask.getValue() &lt;= 0 then
+					downtime_flask.setValue(BetterToolsHerbalismManager.getPreferredFlaskForHerb(getDatabaseNode(), downtime_herb.getValue()));
+				end
 				if downtime_herb.getValue() ~= "" then
 					downtime_herblabel.setValue(BetterToolsHerbalismManager.getHerbLabel(downtime_herb.getValue()));
 				end
+				self.updateDowntimeFlaskChoices(true);
 			end
 			function harvest()
 				self.ensureGatherDefaults();
@@ -564,10 +570,64 @@
 			end
 			function downtime()
 				self.ensureGatherDefaults();
-				BetterToolsHerbalismManager.performDowntime(getDatabaseNode(), downtime_herb.getValue(), downtime_days.getValue());
+				BetterToolsHerbalismManager.performDowntime(getDatabaseNode(), downtime_herb.getValue(), downtime_days.getValue(), downtime_flask.getValue());
 			end
 			function chooseDowntimeHerb()
 				BetterToolsHerbalismManager.openHerbPicker(getDatabaseNode(), "downtime_herb");
+			end
+			function setDowntimeFlaskChoiceEnabled(nFlask, bEnabled)
+				if nFlask == 1 then downtime_flask1.setEnabled(bEnabled);
+				elseif nFlask == 2 then downtime_flask2.setEnabled(bEnabled);
+				elseif nFlask == 3 then downtime_flask3.setEnabled(bEnabled);
+				elseif nFlask == 4 then downtime_flask4.setEnabled(bEnabled);
+				elseif nFlask == 5 then downtime_flask5.setEnabled(bEnabled);
+				elseif nFlask == 6 then downtime_flask6.setEnabled(bEnabled);
+				end
+			end
+			function setDowntimeFlaskChoiceValues(nSelected)
+				_bUpdatingDowntimeFlasks = true;
+				downtime_flask1.setValue(nSelected == 1 and 1 or 0);
+				downtime_flask2.setValue(nSelected == 2 and 1 or 0);
+				downtime_flask3.setValue(nSelected == 3 and 1 or 0);
+				downtime_flask4.setValue(nSelected == 4 and 1 or 0);
+				downtime_flask5.setValue(nSelected == 5 and 1 or 0);
+				downtime_flask6.setValue(nSelected == 6 and 1 or 0);
+				_bUpdatingDowntimeFlasks = false;
+			end
+			function isDowntimeFlaskCompatible(nFlask)
+				return BetterToolsHerbalismManager.isFlaskCompatibleForHerb(getDatabaseNode(), downtime_herb.getValue(), nFlask);
+			end
+			function selectDowntimeFlask(nFlask)
+				if _bUpdatingDowntimeFlasks then
+					return;
+				end
+				if not self.isDowntimeFlaskCompatible(nFlask) then
+					self.updateDowntimeFlaskChoices(true);
+					return;
+				end
+				downtime_flask.setValue(nFlask);
+				self.updateDowntimeFlaskChoices(true);
+			end
+			function updateDowntimeFlaskChoices(bKeepSelection)
+				local sHerb = downtime_herb.getValue();
+				local nSelected = downtime_flask.getValue();
+				if sHerb == "" then
+					downtime_flask.setValue(0);
+					for i = 1, 6 do
+						self.setDowntimeFlaskChoiceEnabled(i, false);
+					end
+					self.setDowntimeFlaskChoiceValues(0);
+					return;
+				end
+
+				if not bKeepSelection or nSelected &lt;= 0 or not self.isDowntimeFlaskCompatible(nSelected) then
+					nSelected = BetterToolsHerbalismManager.getPreferredFlaskForHerb(getDatabaseNode(), sHerb);
+					downtime_flask.setValue(nSelected);
+				end
+				for i = 1, 6 do
+					self.setDowntimeFlaskChoiceEnabled(i, self.isDowntimeFlaskCompatible(i));
+				end
+				self.setDowntimeFlaskChoiceValues(nSelected);
 			end
 		</script>
 		<sheetdata>
@@ -636,14 +696,63 @@
 				</script>
 			</button_text>
 			<stringu name="downtime_herblabel">
-				<anchored to="downtime_herb_button" position="righthigh" offset="5,0" width="160" height="20" />
+				<anchored to="downtime_herb_button" position="righthigh" offset="5,0" width="130" height="20" />
 				<readonly />
 				<nodrag />
 			</stringu>
+			<label name="downtime_flask_label">
+				<anchored to="downtime_herblabel" position="righthigh" offset="10,0" width="42" height="20" />
+				<static text="Flakons" />
+			</label>
+			<button_listitem_checkbox_base name="downtime_flask1">
+				<anchored to="downtime_flask_label" position="righthigh" offset="4,0" width="20" height="20" />
+				<tooltip text="Flakon 1" />
+				<script>function onValueChanged() if getValue() == 1 then window.selectDowntimeFlask(1); end end</script>
+			</button_listitem_checkbox_base>
+			<button_listitem_checkbox_base name="downtime_flask2">
+				<anchored to="downtime_flask1" position="righthigh" offset="4,0" width="20" height="20" />
+				<tooltip text="Flakon 2" />
+				<script>function onValueChanged() if getValue() == 1 then window.selectDowntimeFlask(2); end end</script>
+			</button_listitem_checkbox_base>
+			<button_listitem_checkbox_base name="downtime_flask3">
+				<anchored to="downtime_flask2" position="righthigh" offset="4,0" width="20" height="20" />
+				<tooltip text="Flakon 3" />
+				<script>function onValueChanged() if getValue() == 1 then window.selectDowntimeFlask(3); end end</script>
+			</button_listitem_checkbox_base>
+			<button_listitem_checkbox_base name="downtime_flask4">
+				<anchored to="downtime_flask3" position="righthigh" offset="4,0" width="20" height="20" />
+				<tooltip text="Flakon 4" />
+				<script>function onValueChanged() if getValue() == 1 then window.selectDowntimeFlask(4); end end</script>
+			</button_listitem_checkbox_base>
+			<button_listitem_checkbox_base name="downtime_flask5">
+				<anchored to="downtime_flask4" position="righthigh" offset="4,0" width="20" height="20" />
+				<tooltip text="Flakon 5" />
+				<script>function onValueChanged() if getValue() == 1 then window.selectDowntimeFlask(5); end end</script>
+			</button_listitem_checkbox_base>
+			<button_listitem_checkbox_base name="downtime_flask6">
+				<anchored to="downtime_flask5" position="righthigh" offset="4,0" width="20" height="20" />
+				<tooltip text="Flakon 6" />
+				<script>function onValueChanged() if getValue() == 1 then window.selectDowntimeFlask(6); end end</script>
+			</button_listitem_checkbox_base>
 			<stringfield name="downtime_herb">
 				<bounds>0,0,0,0</bounds>
 				<invisible />
+				<script>
+					function onValueChanged()
+						window.downtime_herblabel.setValue(BetterToolsHerbalismManager.getHerbLabel(getValue()));
+						window.updateDowntimeFlaskChoices(false);
+					end
+				</script>
 			</stringfield>
+			<numberfield name="downtime_flask">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+				<script>
+					function onValueChanged()
+						window.updateDowntimeFlaskChoices(true);
+					end
+				</script>
+			</numberfield>
 
 			<label_charframetop name="flask_header">
 				<anchored to="contentanchor" height="20">
@@ -655,7 +764,7 @@
 				<static text="Flakons" />
 			</label_charframetop>
 			<list_content_labeled_alternating_top name="list">
-				<anchored height="408">
+				<anchored height="276">
 					<left offset="5" />
 					<right offset="-5" />
 				</anchored>
@@ -694,7 +803,7 @@
 
 	<windowclass name="bettertools_herbalism_flask">
 		<placement>
-			<size width="650" height="66" />
+			<size width="650" height="44" />
 		</placement>
 		<margins control="0,0,0,2" />
 		<script file="campaign/scripts/kraeuterkundeausruestung/bettertools_herbalism_flask.lua" />
@@ -705,7 +814,7 @@
 			<button_listitem_idelete_left name="idelete" />
 			<spacer_listitem_idelete_left name="idelete_spacer" />
 			<button_listitem_roll_left name="drink_button">
-				<tooltip text="Trank trinken oder an Ziel verabreichen" />
+				<tooltip text="Trank verabreichen" />
 				<script>
 					function onButtonPress()
 						window.drink();
@@ -782,15 +891,324 @@
 				<readonly />
 				<nodrag />
 			</stringu>
-			<stringu name="effectcode">
+			<stringfield name="effectcode">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+			</stringfield>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_herbalism_harvest_result" copy="record_window">
+		<placement>
+			<size width="700" height="520" />
+		</placement>
+		<sizelimits>
+			<minimum width="620" height="380" />
+		</sizelimits>
+		<script>
+			function onInit()
+				if completed.getValue() == 1 then
+					self.close();
+				end
+			end
+			function onCompletedChanged()
+				if completed.getValue() == 1 then
+					self.close();
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<label_charframetop name="header">
+				<anchored to="contentanchor" height="26">
+					<top relation="relative" offset="6" />
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+				<icons>forge_item_advgear</icons>
+				<static text="Gefundene Kr&#228;uter verteilen" />
+			</label_charframetop>
+
+			<label name="info">
+				<anchored to="header" height="44">
+					<top anchor="bottom" relation="relative" offset="8" />
+					<left offset="4" />
+					<right offset="-4" />
+				</anchored>
+				<static text="Portionen und Flakon w&#228;hlen." />
+			</label>
+
+			<list_content_labeled name="list">
+				<anchored>
+					<top parent="info" anchor="bottom" relation="relative" offset="28" />
+					<left offset="18" />
+					<right offset="-18" />
+					<bottom offset="-10" />
+				</anchored>
+				<datasource>.entries</datasource>
+				<class>bettertools_herbalism_harvest_entry</class>
+			</list_content_labeled>
+
+			<anchor_list_content_label_left />
+			<anchor_list_content_label_right />
+			<label_list_content_number_left name="label_herb">
+				<anchored width="200" />
+				<static text="Kraut" />
+			</label_list_content_number_left>
+			<label_list_content_number_left name="label_amount">
+				<anchored width="54" />
+				<static text="Port." />
+			</label_list_content_number_left>
+			<label_list_content_number_left name="label_flask">
+				<anchored width="146" />
+				<static text="Flakons" />
+			</label_list_content_number_left>
+			<label_list_content_noframe name="label_action">
+				<static text="" />
+			</label_list_content_noframe>
+			<numberfield name="completed">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+				<script>
+					function onValueChanged()
+						window.onCompletedChanged();
+					end
+				</script>
+			</numberfield>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_herbalism_harvest_entry">
+		<placement>
+			<size width="650" height="26" />
+		</placement>
+		<margins control="0,0,0,2" />
+		<script>
+			local _bUpdatingFlasks = false;
+
+			function onInit()
+				BetterToolsHerbalismManager.syncHarvestEntryRemaining(getDatabaseNode());
+				if flaskno.getValue() &lt;= 0 then
+					flaskno.setValue(BetterToolsHerbalismManager.getPreferredHarvestFlask(getDatabaseNode()));
+				end
+				self.updateHeaderState();
+				self.updateFlaskChoices();
+			end
+			function allocate()
+				if isheader.getValue() == 1 then
+					BetterToolsHerbalismManager.allocateHarvestHour(getDatabaseNode());
+				end
+			end
+			function setFlaskChoiceVisible(bVisible)
+				flask1.setVisible(bVisible);
+				flask2.setVisible(bVisible);
+				flask3.setVisible(bVisible);
+				flask4.setVisible(bVisible);
+				flask5.setVisible(bVisible);
+				flask6.setVisible(bVisible);
+			end
+			function setFlaskChoiceEnabled(nFlask, bEnabled)
+				if nFlask == 1 then flask1.setEnabled(bEnabled);
+				elseif nFlask == 2 then flask2.setEnabled(bEnabled);
+				elseif nFlask == 3 then flask3.setEnabled(bEnabled);
+				elseif nFlask == 4 then flask4.setEnabled(bEnabled);
+				elseif nFlask == 5 then flask5.setEnabled(bEnabled);
+				elseif nFlask == 6 then flask6.setEnabled(bEnabled);
+				end
+			end
+			function setFlaskChoiceValues(nSelected)
+				_bUpdatingFlasks = true;
+				flask1.setValue(nSelected == 1 and 1 or 0);
+				flask2.setValue(nSelected == 2 and 1 or 0);
+				flask3.setValue(nSelected == 3 and 1 or 0);
+				flask4.setValue(nSelected == 4 and 1 or 0);
+				flask5.setValue(nSelected == 5 and 1 or 0);
+				flask6.setValue(nSelected == 6 and 1 or 0);
+				_bUpdatingFlasks = false;
+			end
+			function isFlaskCompatible(nFlask)
+				return BetterToolsHerbalismManager.isHarvestFlaskCompatible(getDatabaseNode(), nFlask);
+			end
+			function getFirstCompatibleFlask()
+				return BetterToolsHerbalismManager.getPreferredHarvestFlask(getDatabaseNode());
+			end
+			function selectFlask(nFlask)
+				if _bUpdatingFlasks then
+					return;
+				end
+				if isheader.getValue() == 1 then
+					return;
+				end
+				if not self.isFlaskCompatible(nFlask) then
+					self.updateFlaskChoices();
+					return;
+				end
+				flaskno.setValue(nFlask);
+				self.updateFlaskChoices();
+			end
+			function updateFlaskChoices()
+				local bHeader = (isheader.getValue() == 1);
+				local bSpacer = (isspacer.getValue() == 1);
+				self.setFlaskChoiceVisible(not bHeader and not bSpacer);
+				if bHeader or bSpacer then
+					self.setFlaskChoiceValues(0);
+					return;
+				end
+
+				local nSelected = flaskno.getValue();
+				if nSelected &lt;= 0 or not self.isFlaskCompatible(nSelected) then
+					nSelected = self.getFirstCompatibleFlask();
+					flaskno.setValue(nSelected);
+				end
+
+				for i = 1, 6 do
+					self.setFlaskChoiceEnabled(i, self.isFlaskCompatible(i));
+				end
+				self.setFlaskChoiceValues(nSelected);
+			end
+			function updateHeaderState()
+				local bHeader = (isheader.getValue() == 1);
+				local bSpacer = (isspacer.getValue() == 1);
+				groupheader.setValue(groupname.getValue());
+				hour.setVisible(false);
+				remaining.setVisible(false);
+				herblabel.setVisible(not bHeader and not bSpacer);
+				amount.setVisible(not bHeader and not bSpacer);
+				allocate_button.setVisible(bHeader);
+				groupheader.setVisible(bHeader and not bSpacer);
+				self.updateFlaskChoices();
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<stringu name="groupheader">
 				<anchored to="rightanchor" height="20">
-					<top offset="44" />
-					<left parent="leftanchor" relation="current" offset="5" />
-					<right offset="-5" />
+					<top />
+					<left parent="leftanchor" offset="0" />
+					<right offset="-104" />
 				</anchored>
 				<readonly />
 				<nodrag />
 			</stringu>
+			<number_listitem_left name="hour">
+				<anchored to="leftanchor" height="20" width="42">
+					<top />
+					<left />
+				</anchored>
+				<readonly />
+				<nodrag />
+			</number_listitem_left>
+			<number_listitem_left name="remaining">
+				<anchored to="hour" position="righthigh" offset="4,0" width="54" height="20" />
+				<readonly />
+				<nodrag />
+			</number_listitem_left>
+			<stringu name="herblabel">
+				<anchored to="leftanchor" height="20" width="200">
+					<top />
+					<left />
+				</anchored>
+				<readonly />
+				<nodrag />
+			</stringu>
+			<number_listitem_left name="amount">
+				<anchored to="herblabel" position="righthigh" offset="8,0" width="54" height="20" />
+				<min value="0" />
+				<nodrag />
+			</number_listitem_left>
+			<button_listitem_checkbox_base name="flask1">
+				<anchored to="amount" position="righthigh" offset="8,0" width="20" height="20" />
+				<tooltip text="Flakon 1" />
+				<script>function onValueChanged() if getValue() == 1 then window.selectFlask(1); end end</script>
+			</button_listitem_checkbox_base>
+			<button_listitem_checkbox_base name="flask2">
+				<anchored to="flask1" position="righthigh" offset="4,0" width="20" height="20" />
+				<tooltip text="Flakon 2" />
+				<script>function onValueChanged() if getValue() == 1 then window.selectFlask(2); end end</script>
+			</button_listitem_checkbox_base>
+			<button_listitem_checkbox_base name="flask3">
+				<anchored to="flask2" position="righthigh" offset="4,0" width="20" height="20" />
+				<tooltip text="Flakon 3" />
+				<script>function onValueChanged() if getValue() == 1 then window.selectFlask(3); end end</script>
+			</button_listitem_checkbox_base>
+			<button_listitem_checkbox_base name="flask4">
+				<anchored to="flask3" position="righthigh" offset="4,0" width="20" height="20" />
+				<tooltip text="Flakon 4" />
+				<script>function onValueChanged() if getValue() == 1 then window.selectFlask(4); end end</script>
+			</button_listitem_checkbox_base>
+			<button_listitem_checkbox_base name="flask5">
+				<anchored to="flask4" position="righthigh" offset="4,0" width="20" height="20" />
+				<tooltip text="Flakon 5" />
+				<script>function onValueChanged() if getValue() == 1 then window.selectFlask(5); end end</script>
+			</button_listitem_checkbox_base>
+			<button_listitem_checkbox_base name="flask6">
+				<anchored to="flask5" position="righthigh" offset="4,0" width="20" height="20" />
+				<tooltip text="Flakon 6" />
+				<script>function onValueChanged() if getValue() == 1 then window.selectFlask(6); end end</script>
+			</button_listitem_checkbox_base>
+			<button_text name="allocate_button">
+				<anchored to="rightanchor" width="90" height="20">
+					<top />
+					<right offset="-4" />
+				</anchored>
+				<state text="Einf&#252;llen" />
+				<script>
+					function onButtonPress()
+						window.allocate();
+					end
+				</script>
+			</button_text>
+			<stringfield name="herb">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+			</stringfield>
+			<stringfield name="hourpath">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+			</stringfield>
+			<stringfield name="resultpath">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+			</stringfield>
+			<stringfield name="groupname">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+				<script>
+					function onValueChanged()
+						window.updateHeaderState();
+					end
+				</script>
+			</stringfield>
+			<numberfield name="flaskno">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+				<script>
+					function onValueChanged()
+						window.updateFlaskChoices();
+					end
+				</script>
+			</numberfield>
+			<numberfield name="compatibilitystamp">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+				<script>
+					function onValueChanged()
+						window.updateFlaskChoices();
+					end
+				</script>
+			</numberfield>
+			<numberfield name="isheader">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+			</numberfield>
+			<numberfield name="isspacer">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+			</numberfield>
 		</sheetdata>
 	</windowclass>
 
