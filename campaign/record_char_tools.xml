@@ -535,7 +535,9 @@
 				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 			end
 			function onLockModeChanged(bReadOnly)
-				WindowManager.callSafeControlsSetLockMode(self, { "harvest_hours", "downtime_days", "downtime_herb_button", "downtime_herb", }, bReadOnly);
+				WindowManager.callSafeControlsSetLockMode(self, { "harvest_hours", "downtime_days", }, bReadOnly);
+				downtime_herb_button.setVisible(true);
+				downtime_herb_button.setEnabled(true);
 			end
 			function getFlaskCount()
 				local nCount = 0;
@@ -821,14 +823,14 @@
 					end
 				</script>
 			</button_listitem_roll_left>
-			<button_listitem_roll_left name="empty_button">
+			<button_listitem_idelete_left name="empty_button">
 				<tooltip text="Flakon aussch&#252;tten" />
 				<script>
 					function onButtonPress()
 						window.empty();
 					end
 				</script>
-			</button_listitem_roll_left>
+			</button_listitem_idelete_left>
 			<number_listitem_left name="portions">
 				<anchored width="45" />
 				<min value="0" />

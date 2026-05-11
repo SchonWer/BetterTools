@@ -39,7 +39,8 @@ end
 
 function updateHerbButtonVisibility()
 	local bHasLockedHerb = portions.getValue() > 0 and herb.getValue() ~= "";
-	herb_button.setVisible(not bHasLockedHerb);
+	local bReadOnly = WindowManager.getWindowReadOnlyState(self);
+	herb_button.setVisible(not bReadOnly and not bHasLockedHerb);
 end
 
 function drink()
