@@ -6,6 +6,8 @@ Sie fügt dem Charakterbogen einen Tools-Tab hinzu und integriert Homebrew-Tools
 - Tools-Tab im Charakterbogen
 - Implementierung für Kochutensilien
 - Implementierung für Brauerausrüstung
+- Implementierung für Schmiedeausrüstung
+- Implementierung für Kräuterkundeausrüstung
 
 ## Installation
 1. `BetterTools.ext` herunterladen.
