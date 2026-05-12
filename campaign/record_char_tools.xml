@@ -823,14 +823,15 @@
 					end
 				</script>
 			</button_listitem_roll_left>
-			<button_listitem_idelete_left name="empty_button">
+			<button_listitem_left name="empty_button">
+				<icon normal="button_delete" />
 				<tooltip text="Flakon aussch&#252;tten" />
 				<script>
 					function onButtonPress()
 						window.empty();
 					end
 				</script>
-			</button_listitem_idelete_left>
+			</button_listitem_left>
 			<number_listitem_left name="portions">
 				<anchored width="45" />
 				<min value="0" />
