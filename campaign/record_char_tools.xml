@@ -535,9 +535,10 @@
 				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 			end
 			function onLockModeChanged(bReadOnly)
-				WindowManager.callSafeControlsSetLockMode(self, { "harvest_hours", "downtime_days", }, bReadOnly);
 				downtime_herb_button.setVisible(true);
 				downtime_herb_button.setEnabled(true);
+				harvest_hours.setEnabled(true);
+				downtime_days.setEnabled(true);
 			end
 			function getFlaskCount()
 				local nCount = 0;

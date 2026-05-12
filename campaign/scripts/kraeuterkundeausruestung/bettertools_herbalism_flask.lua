@@ -7,6 +7,7 @@ function onLockModeChanged(bReadOnly)
 	WindowManager.callSafeControlsSetLockMode(self, { "herb_button", "herb", "portions" }, bReadOnly);
 	idelete.setVisible(false);
 	idelete_spacer.setVisible(true);
+	empty_button.setVisible(not bReadOnly);
 	self.updateHerbButtonVisibility();
 end
 
