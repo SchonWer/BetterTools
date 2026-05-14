@@ -3,6 +3,7 @@ function onInit()
 		quantity.setValue(1);
 	end
 	BetterToolsBrewingManager.ensureDefaultChoices(getDatabaseNode());
+	self.clampLevels();
 	self.updateDC();
 	self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 end
@@ -28,10 +29,14 @@ function onChoiceChanged()
 	self.updateDC();
 end
 
+function clampLevels()
+	BetterToolsBrewingManager.clampDrinkLevels(getDatabaseNode());
+end
+
 function drink()
 	local sName = StringManager.trim(name.getValue());
 	if sName == "" then
-		ChatManager.SystemMessage("BetterTools: Benenne das Getraenk, bevor davon getrunken wird.");
+		ChatManager.SystemMessage("BetterTools: Benenne das Getränk, bevor davon getrunken wird.");
 		return;
 	end
 	if quantity.getValue() <= 0 then
@@ -48,5 +53,5 @@ function finishDrink()
 	end
 	bonuslevel.setValue(0);
 	maluslevel.setValue(0);
-	ChatManager.SystemMessage("BetterTools: " .. (sName ~= "" and sName or "Getraenk") .. " verbraucht; Trinkstatus zurueckgesetzt.");
+	ChatManager.SystemMessage("BetterTools: " .. (sName ~= "" and sName or "Getränk") .. " verbraucht; Trinkstatus zurückgesetzt.");
 end

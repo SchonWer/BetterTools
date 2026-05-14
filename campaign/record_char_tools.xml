@@ -326,11 +326,21 @@
 				<anchored width="38" />
 				<min value="0" />
 				<max value="6" />
+				<script>
+					function onValueChanged()
+						window.clampLevels();
+					end
+				</script>
 			</number_listitem_right>
 			<number_listitem_right name="bonuslevel">
 				<anchored width="38" />
 				<min value="0" />
 				<max value="5" />
+				<script>
+					function onValueChanged()
+						window.clampLevels();
+					end
+				</script>
 			</number_listitem_right>
 
 			<stringu name="name">

@@ -194,12 +194,13 @@ function ensureDefaultChoices(nodeDrink)
 end
 
 function validateDrinkChoices(nodeDrink)
+	BetterToolsBrewingManager.clampDrinkLevels(nodeDrink);
 	if DB.getValue(nodeDrink, "bonuslevel", 0) >= 5 then
-		ChatManager.SystemMessage("BetterTools: Dieses Getraenk hat bereits Bonus 5 erreicht. Weiteres Trinken ist nicht moeglich.");
+		ChatManager.SystemMessage("BetterTools: Dieses Getränk hat bereits Bonus 5 erreicht. Weiteres Trinken ist nicht möglich.");
 		return false;
 	end
 	if DB.getValue(nodeDrink, "maluslevel", 0) >= 6 then
-		ChatManager.SystemMessage("BetterTools: Dieses Getraenk hat bereits Malus 6 erreicht. Weiteres Trinken ist nicht moeglich.");
+		ChatManager.SystemMessage("BetterTools: Dieses Getränk hat bereits Malus 6 erreicht. Weiteres Trinken ist nicht möglich.");
 		return false;
 	end
 
@@ -218,10 +219,31 @@ function validateDrinkChoices(nodeDrink)
 	end
 
 	if #tMissing > 0 then
-		ChatManager.SystemMessage("BetterTools: Waehle vor dem Trinken mindestens eine Option fuer " .. table.concat(tMissing, ", ") .. ".");
+		ChatManager.SystemMessage("BetterTools: Wähle vor dem Trinken mindestens eine Option für " .. table.concat(tMissing, ", ") .. ".");
 		return false;
 	end
 	return true;
+end
+
+function clampValue(nValue, nMin, nMax)
+	nValue = tonumber(nValue) or 0;
+	return math.max(math.min(nValue, nMax), nMin);
+end
+
+function clampDrinkLevels(nodeDrink)
+	if not nodeDrink then
+		return 0, 0;
+	end
+
+	local nBonus = BetterToolsBrewingManager.clampValue(DB.getValue(nodeDrink, "bonuslevel", 0), 0, 5);
+	local nMalus = BetterToolsBrewingManager.clampValue(DB.getValue(nodeDrink, "maluslevel", 0), 0, 6);
+	if DB.getValue(nodeDrink, "bonuslevel", 0) ~= nBonus then
+		DB.setValue(nodeDrink, "bonuslevel", "number", nBonus);
+	end
+	if DB.getValue(nodeDrink, "maluslevel", 0) ~= nMalus then
+		DB.setValue(nodeDrink, "maluslevel", "number", nMalus);
+	end
+	return nBonus, nMalus;
 end
 
 function performDrinkRoll(nodeDrink)
@@ -262,7 +284,7 @@ function getDrinkTarget(rBrewer)
 		return rBrewer;
 	end
 	if #tTargets > 1 then
-		ChatManager.SystemMessage("BetterTools: Bitte visiere genau eine Kreatur an, die das Getraenk trinkt.");
+		ChatManager.SystemMessage("BetterTools: Bitte visiere genau eine Kreatur an, die das Getränk trinkt.");
 		return nil;
 	end
 	return tTargets[1];
@@ -302,10 +324,9 @@ function onDrinkRoll(rSource, _, rRoll)
 		sResult = "Erfolg";
 	end
 
-	local nOldBonus = DB.getValue(nodeDrink, "bonuslevel", 0);
-	local nOldMalus = DB.getValue(nodeDrink, "maluslevel", 0);
-	local nNewBonus = math.min(nOldBonus + nBonusGain, 5);
-	local nNewMalus = math.min(nOldMalus + nMalusGain, 6);
+	local nOldBonus, nOldMalus = BetterToolsBrewingManager.clampDrinkLevels(nodeDrink);
+	local nNewBonus = BetterToolsBrewingManager.clampValue(nOldBonus + nBonusGain, 0, 5);
+	local nNewMalus = BetterToolsBrewingManager.clampValue(nOldMalus + nMalusGain, 0, 6);
 	DB.setValue(nodeDrink, "bonuslevel", "number", nNewBonus);
 	DB.setValue(nodeDrink, "maluslevel", "number", nNewMalus);
 
