@@ -1,6 +1,6 @@
 # BetterTools
 BetterTools ist eine Fantasy-Grounds-Extension für DnD 5E. 
-Sie fügt dem Charakterbogen einen Tools-Tab hinzu und integriert Homebrew-Tools.
+Sie fügt dem Charakterbogen einen Tools-Tab hinzu und integriert **Homebrew**-Tools.
 
 ## Funktionen
 - Tools-Tab im Charakterbogen
