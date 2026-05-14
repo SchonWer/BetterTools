@@ -1,7 +1,7 @@
 local _bInitialized = false;
 
 local _tDefaultTools = {
-	{ name = "Schmiedewerkzeug", stat = "strength" },
+	{ name = "Schmiedewerkzeug", stat = "strength", tooltype = "smithing" },
 	{ name = "Malerutensilien", stat = "dexterity" },
 	{ name = "Freizeitset", stat = "" },
 	{ name = "Gerberwerkzeug", stat = "constitution" },
@@ -12,9 +12,9 @@ local _tDefaultTools = {
 	{ name = "Diebeswerkzeug", stat = "dexterity" },
 	{ name = "Fälschungsutensilien", stat = "intelligence" },
 	{ name = "Verkleidungsset", stat = "charisma" },
-	{ name = "Kräuterkundeausrüstung", stat = "wisdom" },
-	{ name = "Kochutensilien", stat = "wisdom" },
-	{ name = "Brauerausrüstung", stat = "strength" },
+	{ name = "Kräuterkundeausrüstung", stat = "wisdom", tooltype = "herbalism" },
+	{ name = "Kochutensilien", stat = "wisdom", tooltype = "cooking" },
+	{ name = "Brauerausrüstung", stat = "strength", tooltype = "brewing" },
 	{ name = "Alchemistenausrüstung", stat = "intelligence" },
 	{ name = "Heilausrüstung", stat = "wisdom" },
 	{ name = "Angelausrüstung", stat = "strength" },
@@ -67,6 +67,9 @@ function constructDefaultTools()
 		for _, wMatch in pairs(tMatches or {}) do
 			if not bCustom and tTool.stat ~= "" and wMatch.stat.getValue() == "" then
 				wMatch.stat.setValue(tTool.stat);
+			end
+			if not bCustom and (tTool.tooltype or "") ~= "" then
+				wMatch.tooltype.setValue(tTool.tooltype);
 			end
 			wMatch.setCustom(bCustom);
 			bCustom = true;

@@ -30,20 +30,40 @@ function isCustom()
 	return _bCustom;
 end
 
+function getToolType()
+	local sToolType = DB.getValue(getDatabaseNode(), "tooltype", "");
+	if sToolType ~= "" then
+		return sToolType;
+	end
+
+	local sName = StringManager.trim(name.getValue());
+	if sName == "Kochutensilien" then
+		return "cooking";
+	elseif sName == "Brauerausrüstung" then
+		return "brewing";
+	elseif sName == "Schmiedewerkzeug" then
+		return "smithing";
+	elseif sName == "Kräuterkundeausrüstung" then
+		return "herbalism";
+	end
+	return "";
+end
+
 function openToolLink()
-	if StringManager.trim(name.getValue()) == "Kochutensilien" then
+	local sToolType = self.getToolType();
+	if sToolType == "cooking" then
 		self.openCookingToolWindow();
 		return;
 	end
-	if StringManager.trim(name.getValue()) == "Brauerausrüstung" then
+	if sToolType == "brewing" then
 		self.openBrewingToolWindow();
 		return;
 	end
-	if StringManager.trim(name.getValue()) == "Schmiedewerkzeug" then
+	if sToolType == "smithing" then
 		self.openSmithingToolWindow();
 		return;
 	end
-	if StringManager.trim(name.getValue()) == "Kräuterkundeausrüstung" then
+	if sToolType == "herbalism" then
 		self.openHerbalismToolWindow();
 		return;
 	end

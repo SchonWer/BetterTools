@@ -189,6 +189,139 @@ function getEffectData(sRarity, nEffectNo)
 	return { text = tEffect or "", code = "" };
 end
 
+function cookSelectedIngredients(wCooking)
+	if not wCooking or not wCooking.list then
+		return;
+	end
+
+	local tIngredients = {};
+	local tRarityCount = {};
+
+	for _, w in pairs(wCooking.list.getWindows()) do
+		if w.use and w.use.getValue() == 1 then
+			local sName = StringManager.trim(w.name.getValue());
+			local sRarity = w.rarity.getValue();
+			local nEffectNo = w.effectno.getValue();
+			local nQuantity = w.quantity.getValue();
+
+			if sName == "" then
+				ChatManager.SystemMessage("BetterTools: Eine ausgewählte Zutat hat keinen Namen.");
+				return;
+			end
+			if sRarity == "" then
+				ChatManager.SystemMessage("BetterTools: " .. sName .. " hat keine Seltenheit.");
+				return;
+			end
+			if nQuantity <= 0 then
+				ChatManager.SystemMessage("BetterTools: " .. sName .. " ist nicht mehr vorhanden.");
+				return;
+			end
+			if nEffectNo <= 0 then
+				ChatManager.SystemMessage("BetterTools: " .. sName .. " hat noch keinen bekannten Effekt.");
+				return;
+			end
+
+			local tEffect = BetterToolsCookingManager.getEffectData(sRarity, nEffectNo);
+			local sEffectText = StringManager.trim(tEffect.text or "");
+			local sEffectCode = StringManager.trim(tEffect.code or "");
+			if sEffectText == "" then
+				ChatManager.SystemMessage("BetterTools: Für " .. sName .. " wurde in der passenden Effekt-Tabelle kein Effekt gefunden.");
+				return;
+			end
+
+			tRarityCount[sRarity] = (tRarityCount[sRarity] or 0) + 1;
+			table.insert(tIngredients, {
+				window = w,
+				name = sName,
+				rarity = sRarity,
+				effectno = nEffectNo,
+				quantity = nQuantity,
+				effecttext = sEffectText,
+				effectcode = sEffectCode,
+			});
+		end
+	end
+
+	if #tIngredients < 2 or #tIngredients > 3 then
+		ChatManager.SystemMessage("BetterTools: Wähle 2 bis 3 Zutaten zum Kochen aus.");
+		return;
+	end
+	for _, nCount in pairs(tRarityCount) do
+		if nCount > 2 then
+			ChatManager.SystemMessage("BetterTools: Maximal zwei Zutaten desselben Seltenheitsgrades sind erlaubt.");
+			return;
+		end
+	end
+
+	local nodeChar = DB.getChild(wCooking.getDatabaseNode(), "...");
+	local rActor = ActorManager.resolveActor(nodeChar);
+	local tTargets = TargetingManager.getFullTargets(rActor) or {};
+	if #tTargets <= 0 then
+		ChatManager.SystemMessage("BetterTools: Visiere mindestens ein Ziel an, bevor das Gericht gekocht und verbraucht wird.");
+		return;
+	end
+
+	for _, tIngredient in ipairs(tIngredients) do
+		tIngredient.window.effecttext.setValue(tIngredient.effecttext);
+		tIngredient.window.effectcode.setValue(tIngredient.effectcode);
+		tIngredient.window.quantity.setValue(tIngredient.quantity - 1);
+		tIngredient.window.use.setValue(0);
+	end
+
+	local tLines = {};
+	table.insert(tLines, "kocht ein Gericht mit:");
+	for _, tIngredient in ipairs(tIngredients) do
+		local sLine = "- " .. tIngredient.name .. " (" .. (BetterToolsCookingManager.getRarityLabel(tIngredient.rarity) or tIngredient.rarity);
+		if tIngredient.effectno > 0 then
+			sLine = sLine .. ", Effekt " .. tIngredient.effectno;
+		end
+		sLine = sLine .. ")";
+		if tIngredient.effecttext ~= "" then
+			sLine = sLine .. ": " .. tIngredient.effecttext;
+		else
+			sLine = sLine .. ": Effekt noch nicht notiert.";
+		end
+		if tIngredient.effectcode ~= "" then
+			sLine = sLine .. "\r  FG-Code: " .. tIngredient.effectcode;
+		end
+		table.insert(tLines, sLine);
+	end
+	table.insert(tLines, "");
+	table.insert(tLines, "Dauer: 24 Stunden oder bis zur nächsten Langen Rast.");
+	table.insert(tLines, "Eine Kreatur kann nur von einem Gericht gleichzeitig profitieren.");
+
+	local nApplied = 0;
+	local nTempHPRolls = 0;
+	for _, rTarget in ipairs(tTargets) do
+		for _, tIngredient in ipairs(tIngredients) do
+			if not BetterToolsCookingManager.getTempHPFormula(tIngredient.effectcode) and tIngredient.effectcode ~= "" then
+				EffectManager.addEffectByTable(rTarget, {
+					sName = tIngredient.effectcode,
+					sSource = ActorManager.getCTNodeName(rActor),
+					sExpiration = "restlong",
+				});
+				nApplied = nApplied + 1;
+			end
+		end
+	end
+	for _, tIngredient in ipairs(tIngredients) do
+		if BetterToolsCookingManager.performTempHPRoll(rActor, tTargets, tIngredient.name, tIngredient.effectcode) then
+			nTempHPRolls = nTempHPRolls + 1;
+		end
+	end
+
+	table.insert(tLines, "");
+	local sAppliedLine = "Angewendete Effekte: " .. nApplied .. " auf " .. #tTargets .. " Ziel(e).";
+	if nTempHPRolls > 0 then
+		sAppliedLine = sAppliedLine .. " Temp-TP-Würfe: " .. nTempHPRolls .. ".";
+	end
+	table.insert(tLines, sAppliedLine);
+
+	local msg = ChatManager.createBaseMessage(rActor);
+	msg.text = table.concat(tLines, "\r");
+	Comm.deliverChatMessage(msg);
+end
+
 function getTempHPFormula(sEffectCode)
 	local sCode = string.lower(StringManager.trim(sEffectCode or ""));
 	if sCode == "" then
