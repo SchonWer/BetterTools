@@ -45,6 +45,8 @@ function getToolType()
 		return "smithing";
 	elseif sName == "Kräuterkundeausrüstung" then
 		return "herbalism";
+	elseif sName == "Alchemistenausrüstung" then
+		return "alchemy";
 	end
 	return "";
 end
@@ -65,6 +67,10 @@ function openToolLink()
 	end
 	if sToolType == "herbalism" then
 		self.openHerbalismToolWindow();
+		return;
+	end
+	if sToolType == "alchemy" then
+		self.openAlchemyToolWindow();
 		return;
 	end
 
@@ -110,6 +116,16 @@ function openHerbalismToolWindow()
 	DB.setValue(nodeHerbalism, "name", "string", "Kräuterkundeausrüstung");
 	DB.setValue(nodeHerbalism, "text", "formattedtext", BetterToolsHerbalismManager.getToolText());
 	Interface.openWindow("bettertools_herbalism", nodeHerbalism);
+end
+
+function openAlchemyToolWindow()
+	local nodeTool = getDatabaseNode();
+	local nodeChar = DB.getChild(nodeTool, "...");
+	local nodeAlchemy = DB.createChild(nodeChar, "bettertools.alchemy");
+	DB.setValue(nodeAlchemy, "name", "string", "Alchemistenausrüstung");
+	DB.setValue(nodeAlchemy, "text", "formattedtext", BetterToolsAlchemyManager.getToolText());
+	BetterToolsAlchemyManager.ensureDefaultRows(nodeAlchemy);
+	Interface.openWindow("bettertools_alchemy", nodeAlchemy);
 end
 
 function action(draginfo)

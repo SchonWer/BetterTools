@@ -397,6 +397,386 @@
 		</sheetdata>
 	</windowclass>
 
+	<windowclass name="bettertools_alchemy" copy="record_window">
+		<placement>
+			<size width="760" height="840" />
+		</placement>
+		<sheetdata>
+			<sub_content_framed_groupbox name="content">
+				<class>bettertools_alchemy_contents</class>
+			</sub_content_framed_groupbox>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_alchemy_contents">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				BetterToolsAlchemyManager.ensureDefaultRows(getDatabaseNode());
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				creaturetype_button.setEnabled(true);
+				harvest_button.setVisible(true);
+				craftitem_button.setEnabled(true);
+				craftlevel.setEnabled(true);
+				craft_button.setVisible(true);
+				for _, w in pairs(list.getWindows()) do
+					if w.onLockModeChanged then
+						w.onLockModeChanged(bReadOnly);
+					end
+				end
+			end
+			function harvest()
+				BetterToolsAlchemyManager.performHarvest(getDatabaseNode());
+			end
+			function craft()
+				BetterToolsAlchemyManager.craftSelectedItem(getDatabaseNode());
+			end
+			function chooseCreatureType()
+				BetterToolsAlchemyManager.openCreatureTypePicker(getDatabaseNode());
+			end
+			function chooseItem()
+				BetterToolsAlchemyManager.openItemPicker(getDatabaseNode());
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<label_charframetop name="harvest_header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="2" />
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+				<icons>forge_item_advgear</icons>
+				<static text="Materialbeschaffung" />
+			</label_charframetop>
+			<button_text name="harvest_button">
+				<anchored to="harvest_header" height="20" width="90">
+					<top anchor="bottom" relation="relative" offset="8" />
+					<left offset="5" />
+				</anchored>
+				<state text="Ausweiden" />
+				<script>
+					function onButtonPress()
+						window.harvest();
+					end
+				</script>
+			</button_text>
+			<button_text name="creaturetype_button">
+				<anchored to="harvest_button" position="righthigh" offset="8,0" width="100" height="20" />
+				<state text="Monsterart" />
+				<script>
+					function onButtonPress()
+						window.chooseCreatureType();
+					end
+				</script>
+			</button_text>
+			<stringu name="creaturetypelabel">
+				<anchored to="creaturetype_button" position="righthigh" offset="5,0" width="150" height="20" />
+				<readonly />
+				<nodrag />
+			</stringu>
+			<stringfield name="creaturetype">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+				<script>
+					function onValueChanged()
+						window.creaturetypelabel.setValue(BetterToolsAlchemyManager.getCreatureTypeLabel(getValue()));
+					end
+				</script>
+			</stringfield>
+
+			<label_charframetop name="material_header">
+				<anchored to="harvest_button" height="20">
+					<top anchor="bottom" relation="relative" offset="10" />
+					<left />
+					<right parent="harvest_header" />
+				</anchored>
+				<static text="Monstermaterialien" />
+			</label_charframetop>
+			<list_content_labeled_alternating_top name="list">
+				<anchored height="342">
+					<top parent="material_header" anchor="bottom" relation="relative" offset="24" />
+					<left offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<datasource>.materials</datasource>
+				<class>bettertools_alchemy_material</class>
+				<sortby><control>order</control></sortby>
+			</list_content_labeled_alternating_top>
+
+			<anchor_list_content_label_left />
+			<anchor_list_content_label_right />
+			<label_list_content_number_left name="label_material">
+				<anchored width="290" />
+				<static text="Materialtyp" />
+			</label_list_content_number_left>
+			<label_list_content_number_left name="label_p1">
+				<anchored width="80" />
+				<static text="Stufe 1" />
+			</label_list_content_number_left>
+			<label_list_content_number_left name="label_p2">
+				<anchored width="80" />
+				<static text="Stufe 2" />
+			</label_list_content_number_left>
+			<label_list_content_number_left name="label_p3">
+				<anchored width="80" />
+				<static text="Stufe 3" />
+			</label_list_content_number_left>
+			<label_list_content_noframe name="label_material_rest">
+				<static text="" />
+			</label_list_content_noframe>
+
+			<label_charframetop name="craft_header">
+				<anchored to="list" height="20">
+					<top anchor="bottom" relation="relative" offset="12" />
+					<left offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<static text="Herstellung" />
+			</label_charframetop>
+			<button_text name="craft_button">
+				<anchored to="craft_header" height="20" width="90">
+					<top anchor="bottom" relation="relative" offset="8" />
+					<left offset="5" />
+				</anchored>
+				<state text="Herstellen" />
+				<script>
+					function onButtonPress()
+						window.craft();
+					end
+				</script>
+			</button_text>
+			<button_text name="craftitem_button">
+				<anchored to="craft_button" position="righthigh" offset="8,0" width="100" height="20" />
+				<state text="Gegenstand" />
+				<script>
+					function onButtonPress()
+						window.chooseItem();
+					end
+				</script>
+			</button_text>
+			<stringu name="craftitemlabel">
+				<anchored to="craftitem_button" position="righthigh" offset="5,0" width="170" height="20" />
+				<readonly />
+				<nodrag />
+			</stringu>
+			<stringfield name="craftitem">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+				<script>
+					function onValueChanged()
+						window.craftitemlabel.setValue(BetterToolsAlchemyManager.getItemLabel(getValue()));
+					end
+				</script>
+			</stringfield>
+			<label name="craft_level_label">
+				<anchored to="craftitemlabel" position="righthigh" offset="12,0" width="45" height="20" />
+				<static text="Stufe" />
+			</label>
+			<number_listitem_left name="craftlevel">
+				<anchored to="craft_level_label" position="righthigh" offset="4,0" width="36" height="20" />
+				<min value="1" />
+				<max value="3" />
+				<nodrag />
+			</number_listitem_left>
+
+			<ft_content_noframe_noscroll_top name="text">
+				<anchored>
+					<top parent="craft_button" anchor="bottom" relation="relative" offset="16" postoffset="0" />
+				</anchored>
+			</ft_content_noframe_noscroll_top>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_alchemy_material">
+		<placement>
+			<size width="650" height="22" />
+		</placement>
+		<margins control="0,0,0,2" />
+		<script>
+			local _bSyncing = false;
+
+			function onInit()
+				self.sync();
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function sync()
+				_bSyncing = true;
+				BetterToolsAlchemyManager.updateMaterialDisplays(getDatabaseNode());
+				_bSyncing = false;
+			end
+			function onLockModeChanged(bReadOnly)
+				materialdisplay1.setReadOnly(bReadOnly);
+				materialdisplay2.setReadOnly(bReadOnly);
+				materialdisplay3.setReadOnly(bReadOnly);
+			end
+			function onDisplayChanged(nPotency, sValue)
+				if _bSyncing then
+					return;
+				end
+				BetterToolsAlchemyManager.setMaterialDisplayValue(getDatabaseNode(), nPotency, sValue);
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<numberfield name="order">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+			</numberfield>
+			<stringfield name="materialkey">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+			</stringfield>
+			<numberfield name="p1units">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+				<script>function onValueChanged() window.sync(); end</script>
+			</numberfield>
+			<numberfield name="p2units">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+				<script>function onValueChanged() window.sync(); end</script>
+			</numberfield>
+			<numberfield name="p3units">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+				<script>function onValueChanged() window.sync(); end</script>
+			</numberfield>
+			<stringu name="label">
+				<anchored to="leftanchor" height="20" width="290">
+					<top />
+					<left />
+				</anchored>
+				<readonly />
+				<nodrag />
+			</stringu>
+			<string_listitem_left name="materialdisplay1">
+				<anchored to="label" position="righthigh" offset="6,0" width="80" height="20" />
+				<nodrag />
+				<script>
+					function onValueChanged()
+						window.onDisplayChanged(1, getValue());
+					end
+				</script>
+			</string_listitem_left>
+			<string_listitem_left name="materialdisplay2">
+				<anchored to="materialdisplay1" position="righthigh" offset="6,0" width="80" height="20" />
+				<nodrag />
+				<script>
+					function onValueChanged()
+						window.onDisplayChanged(2, getValue());
+					end
+				</script>
+			</string_listitem_left>
+			<string_listitem_left name="materialdisplay3">
+				<anchored to="materialdisplay2" position="righthigh" offset="6,0" width="80" height="20" />
+				<nodrag />
+				<script>
+					function onValueChanged()
+						window.onDisplayChanged(3, getValue());
+					end
+				</script>
+			</string_listitem_left>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_alchemy_creature_picker" copy="record_window">
+		<placement>
+			<size width="380" height="510" />
+		</placement>
+		<sizelimits>
+			<minimum width="380" height="510" />
+		</sizelimits>
+		<script>
+			function choose(sCreatureType)
+				BetterToolsAlchemyManager.chooseCreatureType(getDatabaseNode(), sCreatureType);
+				self.close();
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<button_text name="pick_aberration"><anchored to="contentanchor" height="22"><top relation="relative" offset="2" /><left offset="12" /><right offset="-12" /></anchored><state text="Aberration" /><script>function onButtonPress() window.choose("aberration"); end</script></button_text>
+			<button_text name="pick_dragon"><anchored to="pick_aberration" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Drache" /><script>function onButtonPress() window.choose("dragon"); end</script></button_text>
+			<button_text name="pick_elemental"><anchored to="pick_dragon" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Elementar" /><script>function onButtonPress() window.choose("elemental"); end</script></button_text>
+			<button_text name="pick_fey"><anchored to="pick_elemental" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Feenwesen" /><script>function onButtonPress() window.choose("fey"); end</script></button_text>
+			<button_text name="pick_celestial"><anchored to="pick_fey" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Himmlischer" /><script>function onButtonPress() window.choose("celestial"); end</script></button_text>
+			<button_text name="pick_humanoid"><anchored to="pick_celestial" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Humanoider" /><script>function onButtonPress() window.choose("humanoid"); end</script></button_text>
+			<button_text name="pick_construct"><anchored to="pick_humanoid" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Konstrukt" /><script>function onButtonPress() window.choose("construct"); end</script></button_text>
+			<button_text name="pick_monstrosity"><anchored to="pick_construct" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Monstr&#246;sit&#228;t" /><script>function onButtonPress() window.choose("monstrosity"); end</script></button_text>
+			<button_text name="pick_plant"><anchored to="pick_monstrosity" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Pflanze" /><script>function onButtonPress() window.choose("plant"); end</script></button_text>
+			<button_text name="pick_giant"><anchored to="pick_plant" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Riese" /><script>function onButtonPress() window.choose("giant"); end</script></button_text>
+			<button_text name="pick_ooze"><anchored to="pick_giant" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Schlick" /><script>function onButtonPress() window.choose("ooze"); end</script></button_text>
+			<button_text name="pick_beast"><anchored to="pick_ooze" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Tier" /><script>function onButtonPress() window.choose("beast"); end</script></button_text>
+			<button_text name="pick_fiend"><anchored to="pick_beast" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Unhold" /><script>function onButtonPress() window.choose("fiend"); end</script></button_text>
+			<button_text name="pick_undead"><anchored to="pick_fiend" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Untoter" /><script>function onButtonPress() window.choose("undead"); end</script></button_text>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_alchemy_item_picker" copy="record_window">
+		<placement>
+			<size width="380" height="510" />
+		</placement>
+		<sizelimits>
+			<minimum width="380" height="510" />
+		</sizelimits>
+		<script>
+			function onInit()
+				self.updateItemAvailability();
+			end
+			function choose(sItem)
+				BetterToolsAlchemyManager.chooseItem(getDatabaseNode(), sItem);
+				self.close();
+			end
+			function setItemEnabled(sControl, sItem)
+				local cButton = self[sControl];
+				if cButton then
+					cButton.setEnabled(BetterToolsAlchemyManager.hasMaterialsForItem(getDatabaseNode(), sItem));
+				end
+			end
+			function updateItemAvailability()
+				self.setItemEnabled("pick_antiarkanum", "antiarkanum");
+				self.setItemEnabled("pick_drachenbruehe", "drachenbruehe");
+				self.setItemEnabled("pick_alchemistenfeuer", "alchemistenfeuer");
+				self.setItemEnabled("pick_wutpulver", "wutpulver");
+				self.setItemEnabled("pick_goetterfackel", "goetterfackel");
+				self.setItemEnabled("pick_menschlichkeit", "menschlichkeit");
+				self.setItemEnabled("pick_systemschock", "systemschock");
+				self.setItemEnabled("pick_berserkerdunst", "berserkerdunst");
+				self.setItemEnabled("pick_egelsamen", "egelsamen");
+				self.setItemEnabled("pick_hehrgas", "hehrgas");
+				self.setItemEnabled("pick_schlitterseife", "schlitterseife");
+				self.setItemEnabled("pick_buschdaempfe", "buschdaempfe");
+				self.setItemEnabled("pick_teufelssaeuseln", "teufelssaeuseln");
+				self.setItemEnabled("pick_grabesluft", "grabesluft");
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+
+			<button_text name="pick_antiarkanum"><anchored to="contentanchor" height="22"><top relation="relative" offset="2" /><left offset="12" /><right offset="-12" /></anchored><state text="Anti-Arkanum (Aberration)" /><script>function onButtonPress() window.choose("antiarkanum"); end</script></button_text>
+			<button_text name="pick_drachenbruehe"><anchored to="pick_antiarkanum" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Drachenbr&#252;he (Drache)" /><script>function onButtonPress() window.choose("drachenbruehe"); end</script></button_text>
+			<button_text name="pick_alchemistenfeuer"><anchored to="pick_drachenbruehe" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Alchemistenfeuer (Elementar)" /><script>function onButtonPress() window.choose("alchemistenfeuer"); end</script></button_text>
+			<button_text name="pick_wutpulver"><anchored to="pick_alchemistenfeuer" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Wutpulver (Feenwesen)" /><script>function onButtonPress() window.choose("wutpulver"); end</script></button_text>
+			<button_text name="pick_goetterfackel"><anchored to="pick_wutpulver" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="G&#246;tterfackel (Himmlischer)" /><script>function onButtonPress() window.choose("goetterfackel"); end</script></button_text>
+			<button_text name="pick_menschlichkeit"><anchored to="pick_goetterfackel" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Menschlichkeit (Humanoider)" /><script>function onButtonPress() window.choose("menschlichkeit"); end</script></button_text>
+			<button_text name="pick_systemschock"><anchored to="pick_menschlichkeit" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Systemschock (Konstrukt)" /><script>function onButtonPress() window.choose("systemschock"); end</script></button_text>
+			<button_text name="pick_berserkerdunst"><anchored to="pick_systemschock" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Berserkerdunst (Monstr&#246;sit&#228;t)" /><script>function onButtonPress() window.choose("berserkerdunst"); end</script></button_text>
+			<button_text name="pick_egelsamen"><anchored to="pick_berserkerdunst" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Egelsamen (Pflanze)" /><script>function onButtonPress() window.choose("egelsamen"); end</script></button_text>
+			<button_text name="pick_hehrgas"><anchored to="pick_egelsamen" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Hehrgas (Riese)" /><script>function onButtonPress() window.choose("hehrgas"); end</script></button_text>
+			<button_text name="pick_schlitterseife"><anchored to="pick_hehrgas" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Schlitterseife (Schlick)" /><script>function onButtonPress() window.choose("schlitterseife"); end</script></button_text>
+			<button_text name="pick_buschdaempfe"><anchored to="pick_schlitterseife" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Buschd&#228;mpfe (Tier)" /><script>function onButtonPress() window.choose("buschdaempfe"); end</script></button_text>
+			<button_text name="pick_teufelssaeuseln"><anchored to="pick_buschdaempfe" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Teufelss&#228;useln (Unhold)" /><script>function onButtonPress() window.choose("teufelssaeuseln"); end</script></button_text>
+			<button_text name="pick_grabesluft"><anchored to="pick_teufelssaeuseln" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="Grabesluft (Untoter)" /><script>function onButtonPress() window.choose("grabesluft"); end</script></button_text>
+		</sheetdata>
+	</windowclass>
+
 	<windowclass name="bettertools_herbalism" copy="record_window">
 		<placement>
 			<size width="720" height="820" />
