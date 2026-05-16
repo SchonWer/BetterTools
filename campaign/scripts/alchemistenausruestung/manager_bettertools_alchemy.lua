@@ -58,7 +58,7 @@ function getToolText()
 <p>Mit Alchemistenausrüstung schaffst du Gegenstände aus Chemikalien und Monsterteilen, die andere Kreaturen schwächen und verletzen können.</p>
 <p>Alchemistenausrüstung enthält eine Reihe von Instrumenten wie Phiolen, Brenner, Kolben und einen Beutel mit grundlegenden Materialien, wie etwa Salz, Eisenpulver oder sterilisiertes Wasser. Sie wiegen 8 Pfund und kosten 50 Gold.</p>
 <h>Fertigkeiten</h>
-<p>Folgende Beispiele zeigen auf, inwiefern andere Fertigkeiten von der Übung in Brauerausrüstung profitieren könnten. Es handelt sich dabei lediglich um Vorschläge; sei kreativ!</p>
+<p>Folgende Beispiele zeigen auf, inwiefern andere Fertigkeiten von der Übung in Alchemistenausrüstung profitieren könnten. Es handelt sich dabei lediglich um Vorschläge; sei kreativ!</p>
 <p><b>Arkana.</b> Mittels Alchemistenausrüstung können weitere Informationen über Zaubertränke und dergleichen in Erfahrung gebracht werden.</p>
 <p><b>Nachforschung.</b> Wenn du einen Raum nach Hinweisen inspizierst, kann dir dein Wissen über alchemistische Prozesse Einsicht in eventuelle Chemikalien oder ähnliche Substanzen geben, die verwendet wurden.</p>
 <p><b>Heilkunde.</b> Durch Übung mit Alchemistenausrüstung kannst du Gifte oder andere Substanzen einfacher identifizieren.</p>
@@ -67,7 +67,7 @@ function getToolText()
 <h>Monster ausweiden</h>
 <p>Sobald eine Kreatur gestorben ist, kannst du einen Intelligenz (Alchemistenausrüstung)-Wurf ablegen, um sie auszuweiden. Diesen Wurf tätigst du für jeden auszuweidenden Kadaver. Pro Kadaver brauchst du 1 Minute für deine Arbeit.</p>
 <p>Welche Materialien von einer Kreatur zu erhalten sind, ist von ihrem Typ abhängig und kann in der untenstehenden Tabelle eingesehen werden.</p>
-<p>Abhängig vom Ergebnis deines Wurfes erhältst du gewöhnliche oder seltenere Materialien. Je seltener das Material desto grösser seine Potenz bei der Herstellung von Gegenständen.</p>
+<p>Abhängig vom Ergebnis deines Wurfes erhältst du gewöhnliche oder seltenere Materialien. Je seltener das Material desto größer seine Potenz bei der Herstellung von Gegenständen.</p>
 <h>Monstermaterialien</h>
 <table>
 <tr><td><b>SG / Stufe</b></td><td><b>Aberration</b></td><td><b>Drache</b></td><td><b>Elementar</b></td><td><b>Feenwesen</b></td><td><b>Himmlischer</b></td><td><b>Humanoider</b></td><td><b>Konstrukt</b></td></tr>
@@ -82,9 +82,9 @@ function getToolText()
 <tr><td>20 / 3</td><td>Monsteressenz</td><td>Hexenblüte</td><td>Riesenhorn</td><td>Schleimperle</td><td>Tierherz</td><td>Dämonenblut</td><td>Totensplitter</td></tr>
 </table>
 <h>Herstellung</h>
-<p>Um alchemistische Gegenstände herzustellen, benötigst du mindestens 1 Stunde Zeit. Die Herstellung zählt nicht als anstrengende Aktivität, weswegen du sie auch während einer Kurzen Rast ausführen und trotzdem deren Effekte erhalten kannst. Welche Gegenstände du herstellen kannst, siehst du weiter unten.</p>
+<p>Um alchemistische Gegenstände herzustellen, benötigst du mindestens 1 Stunde Zeit. Die Herstellung zählt nicht als anstrengende Aktivität, weswegen du sie auch während einer Kurzen Rast ausführen und trotzdem deren Effekte erhalten kannst. Wie die Materialien haben auch die herstellbaren Gegenstände verschiedene Stufen. Mit höherer Stufe verbessert sich ihr jeweiliger Effekt. Um einen Gegenstand einer bestimmten Stufe herzustellen, benötigst du ein Material derselben Stufe.</p>
 <h>Alchemistische Gegenstände</h>
-<p>Im Folgenden kannst du die Gegenstände einsehen, die du mit Alchemistenausrüstung herstellen kannst. Falls ein Gegenstand einen Rettungswurf erfordert, errechnet sich der SG für diesen folgendermaßen: 8 + deinem Übungsbonus + deinem Intelligenzmodifikator.</p>
+<p>Im Folgenden kannst du die Gegenstände einsehen, die du mit Alchemistenausrüstung herstellen kannst. Falls ein Gegenstand einen Rettungswurf erfordert, liegt dieser bei 15.</p>
 <h>Anti-Arkanum</h>
 <p><i>Benötigt Aberration-Materialien</i></p>
 <p>Als Bonusaktion kannst du das Anti-Arkanum benutzen, um eine Kreatur innerhalb 30 ft. von dir sofort einen Konzentrationswurf für einen Zauber oder Effekt ablegen zu lassen, auf den sie sich konzentriert.</p>
@@ -94,16 +94,16 @@ function getToolText()
 <p><i>Benötigt Drachen-Materialien</i></p>
 <p>Als Aktion kannst du die Drachenbrühe verwenden, um daraufhin eine von dir ausgehende Fläche mit Drachenatem zu füllen. Die Form der Fläche entspricht der Art des Drachen von dem du die Materialien erhalten hast, ebenso wie der dazugehörige Rettungswurf und Schadenstyp. Der Atem bleibt drei Runden bestehen und verschwindet zu Beginn deines entsprechenden Zuges. Bewegt sich eine Kreatur zum ersten Mal in einem Zug in den Atem oder startet ihren Zug in ihm, erleidet sie 2W10 Schaden des entsprechenden Typs, ohne einen Rettungswurf abgelegt zu haben.</p>
 <p>Bei Monstern des Typs Drache, die keinen bestimmten Schadenstypen besitzen (bspw. Pseudodrachen oder Wyvern), verursacht die Drachenbrühe Energieschaden.</p>
-<p><b>Auf Stufe 2:</b> Der Schaden steigt auf 4W6.</p>
-<p><b>Auf Stufe 3:</b> Der Schaden steigt auf 6W6.</p>
+<p><b>Auf Stufe 2:</b> Der Schaden steigt auf 4W10.</p>
+<p><b>Auf Stufe 3:</b> Der Schaden steigt auf 6W10.</p>
 <h>Alchemistenfeuer</h>
 <p><i>Benötigt Elementar-Materialien</i></p>
-<p>Als Bonusaktion kannst du Alchemistenfeuer bis zu 20 ft. weit werfen. Führe einen Fernkampfangriff gegen eine Kreatur oder ein Objekt aus. Du kannst deinen Übungsbonus für diesen Angriff verwenden. Bei einem Treffer erleidet das Ziel zu Beginn jeder seiner Runden 1d8 Schaden der dem Element des Elementars entspricht von dem du das Material erhalten hast. Eine Kreatur kann diesen Schaden beenden, indem sie ihre Aktion nutzt, um einen Geschicklichkeitsrettungswurf zu machen, um die Flammen zu löschen.</p>
-<p><b>Auf Stufe 2:</b> Der Schaden steigt auf 2d8.</p>
-<p><b>Auf Stufe 3:</b> Der Schaden steigt auf 3d8.</p>
+<p>Als Bonusaktion kannst du Alchemistenfeuer bis zu 20 ft. weit werfen. Führe einen Fernkampfangriff gegen eine Kreatur oder ein Objekt aus. Du kannst deinen Übungsbonus für diesen Angriff verwenden. Bei einem Treffer erleidet das Ziel zu Beginn jeder seiner Runden 1W8 Schaden der dem Element des Elementars entspricht von dem du das Material erhalten hast. Eine Kreatur kann diesen Schaden beenden, indem sie ihre Aktion nutzt, um einen Geschicklichkeitsrettungswurf zu machen, um die Flammen zu löschen.</p>
+<p><b>Auf Stufe 2:</b> Der Schaden steigt auf 2W8.</p>
+<p><b>Auf Stufe 3:</b> Der Schaden steigt auf 3W8.</p>
 <h>Wutpulver</h>
 <p><i>Benötigt Feenwesen-Materialien</i></p>
-<p>Als Aktion wirfst du das Wutpulver auf eine Kreatur innerhalb 5 ft. von dir. Sie muss einen Weisheitsrettungswurf ablegen. Bei einem Fehlschlag wird sie bezaubert und von tiefstem Zorn erfüllt. Zu Beginn jedes ihrer nächsten Züge muss eine betroffene Kreatur ihren Zug nutzen, um einem zufälligen Verbündeten möglichst viel Schaden zuzufügen. Kann keiner Kreatur Schaden zugefügt werden, tut sie in ihrem Zug nichts.</p>
+<p>Als Aktion wirfst du das Wutpulver auf eine Kreatur innerhalb 5 ft. von dir. Sie muss einen Weisheitsrettungswurf ablegen. Bei einem Fehlschlag wird sie bezaubert und von tiefstem Zorn erfüllt. Zu Beginn jedes ihrer nächsten Züge muss eine betroffene Kreatur ihren Zug nutzen, um dem am nächsten stehenden Verbündeten Schaden zuzufügen. Kann keiner Kreatur Schaden zugefügt werden, tut sie in ihrem Zug nichts.</p>
 <p><b>Auf Stufe 2:</b> Die Reichweite des Wutpulvers steigt auf 30 ft.</p>
 <p><b>Auf Stufe 3:</b> Die Reichweite des Wutpulvers steigt auf 90 ft.</p>
 <h>Götterfackel</h>
@@ -113,17 +113,17 @@ function getToolText()
 <p><b>Auf Stufe 3:</b> Der Radius des Fackelscheins steigt auf 40 ft.</p>
 <h>Menschlichkeit</h>
 <p><i>Benötigt Humanoider-Materialien</i></p>
-<p>Als Bonusaktion kannst du die Menschlichkeit auf eine beliebige Kreatur innerhalb 120 ft. anwenden. Wähle ein beliebiges Attribut. Die Kreatur muss den dazugehörigen Rettungswurf schaffen oder ihr Attributswert wird auf 10 gesetzt. Der Effekt dauert 1 Minute an. Eine Kreatur kann ihre Aktion verwenden, um den Rettungswurf zu wiederholen und den Effekt bei Erfolg zu beenden.</p>
+<p>Als Aktion kannst du die Menschlichkeit auf eine beliebige Kreatur innerhalb 120 ft. anwenden. Wähle ein beliebiges Attribut. Die Kreatur muss den dazugehörigen Rettungswurf schaffen oder ihr Attributswert wird auf 10 gesetzt. Der Effekt dauert 1 Minute an. Eine Kreatur kann ihre Aktion verwenden, um den Rettungswurf zu wiederholen und den Effekt bei Erfolg zu beenden.</p>
 <p><b>Auf Stufe 2:</b> Du kannst bis zu zwei Kreaturen auswählen.</p>
 <p><b>Auf Stufe 3:</b> Du kannst bis zu drei Kreaturen auswählen.</p>
 <h>Systemschock</h>
 <p><i>Benötigt Konstrukt-Materialien</i></p>
-<p>Als Bonusaktion rufst du einen Systemschock bei Kreaturen in einem von dir ausgehenden 15 ft.-Kegel hervor. Jede Kreatur muss einen Geschicklichkeitsrettungswurf schaffen oder erhält einen Malus von -2 auf ihre Rüstungsklasse. Jeder Angriff auf eine betroffene Kreatur verringert den Malus um 1.</p>
+<p>Als Aktion rufst du einen Systemschock bei Kreaturen in einem von dir ausgehenden 15 ft.-Kegel hervor. Jede Kreatur muss einen Geschicklichkeitsrettungswurf schaffen oder erhält einen Malus von -2 auf ihre Rüstungsklasse. Jeder Angriff auf eine betroffene Kreatur verringert den Malus um 1.</p>
 <p><b>Auf Stufe 2:</b> Der Malus beginnt bei -3.</p>
 <p><b>Auf Stufe 3:</b> Der Malus beginnt bei -4.</p>
 <h>Berserkerdunst</h>
 <p><i>Benötigt Monströsität-Materialien</i></p>
-<p>Als Aktion verstreust du den Berserkerdunst in einem von dir ausgehenden 10 ft.-Kegel. Alle Kreaturen in diesem Bereich müssen einen Weisheitsrettungswurf ablegen. Bei einem Fehlschlag werden sie von Blutrünstigkeit erfüllt. Fügt sie einer anderen Kreatur Schaden zu, erleidet sie selbst den gleiche Menge an Schaden. Der Effekt dauert 1 Minute an. Eine Kreatur kann ihre Aktion verwenden, um den Effekt zu beenden.</p>
+<p>Als Aktion verstreust du den Berserkerdunst in einem von dir ausgehenden 10 ft.-Kegel. Alle Kreaturen in diesem Bereich müssen einen Weisheitsrettungswurf ablegen. Bei einem Fehlschlag werden sie von Blutrünstigkeit erfüllt. Fügt sie einer anderen Kreatur Schaden zu, erleidet sie selbst die Hälfte des ausgeteilten Schadens. Der Effekt dauert 1 Minute an. Eine Kreatur kann ihre Aktion verwenden, um den Effekt zu beenden.</p>
 <p><b>Auf Stufe 2:</b> Die Dimensionen des Kegels steigen auf 20 ft.</p>
 <p><b>Auf Stufe 3:</b> Die Dimensionen des Kegels steigen auf 30 ft.</p>
 <h>Egelsamen</h>
@@ -133,7 +133,7 @@ function getToolText()
 <p><b>Auf Stufe 3:</b> Du kannst bis zu drei Kreaturen auswählen. Benutzt du in Folgezügen deine Bonusaktion dafür, müssen alle betroffenen Kreaturen den Rettungswurf wiederholen.</p>
 <h>Hehrgas</h>
 <p><i>Benötigt Riese-Materialien</i></p>
-<p>Als Bonusaktion kannst du Hehrgas bis zu 20 ft. weit werfen. Führe einen Fernkampfangriff gegen eine Kreatur aus. Du kannst deinen Übungsbonus für diesen Angriff verwenden. Bei einem Treffer wird der Kreatur tiefste Ehrfurcht eingeflößt. Greift sie dich oder einen deiner Verbündeten an, muss sie einen Weisheitsrettungswurf ablegen. Bei einem Fehlschlag trifft sie automatisch nicht. Zusätzlich fügen sämtliche ihrer Angriffe -1W4 Schaden zu.</p>
+<p>Als Aktion kannst du Hehrgas bis zu 20 ft. weit werfen. Führe einen Fernkampfangriff gegen eine Kreatur aus. Du kannst deinen Übungsbonus für diesen Angriff verwenden. Bei einem Treffer wird der Kreatur tiefste Ehrfurcht eingeflößt. Greift sie dich oder einen deiner Verbündeten an, muss sie einen Weisheitsrettungswurf ablegen. Bei einem Fehlschlag trifft sie automatisch nicht. Zusätzlich fügen sämtliche ihrer Angriffe -1W4 Schaden zu. Der Effekt dauert 3 Runden an.</p>
 <p><b>Auf Stufe 2:</b> Der Schadensmalus steigt auf -2W4.</p>
 <p><b>Auf Stufe 3:</b> Der Schadensmalus steigt auf -3W4.</p>
 <h>Schlitterseife</h>
@@ -520,7 +520,7 @@ function stripItemLevelParagraphs(sBlock)
 end
 
 function addSaveDCToItemText(sBlock)
-	local sDC = " (8 + deinem Übungsbonus + deinem Intelligenzmodifikator)";
+	local sDC = " (SG 15)";
 	local tPatterns = {
 		"Geschicklichkeitsrettungswurf",
 		"Weisheitsrettungswurf",
@@ -563,8 +563,8 @@ function applyCraftedItemLevel(sItemKey, nLevel, sBlock)
 			[3] = { { "2W10 Schaden", "6W10 Schaden" } },
 		},
 		alchemistenfeuer = {
-			[2] = { { "1d8 Schaden", "2d8 Schaden" } },
-			[3] = { { "1d8 Schaden", "3d8 Schaden" } },
+			[2] = { { "1W8 Schaden", "2W8 Schaden" } },
+			[3] = { { "1W8 Schaden", "3W8 Schaden" } },
 		},
 		wutpulver = {
 			[2] = { { "innerhalb 5 ft. von dir", "innerhalb 30 ft. von dir" } },
@@ -678,16 +678,16 @@ function getCraftedItemDescription(sItemKey, nLevel)
 <p><i>Benötigt Drachen-Materialien</i></p>
 <p>Als Aktion kannst du die Drachenbrühe verwenden, um daraufhin eine von dir ausgehende Fläche mit Drachenatem zu füllen. Die Form der Fläche entspricht der Art des Drachen von dem du die Materialien erhalten hast, ebenso wie der dazugehörige Rettungswurf und Schadenstyp. Der Atem bleibt drei Runden bestehen und verschwindet zu Beginn deines entsprechenden Zuges. Bewegt sich eine Kreatur zum ersten Mal in einem Zug in den Atem oder startet ihren Zug in ihm, erleidet sie 2W10 Schaden des entsprechenden Typs, ohne einen Rettungswurf abgelegt zu haben.</p>
 <p>Bei Monstern des Typs Drache, die keinen bestimmten Schadenstypen besitzen (bspw. Pseudodrachen oder Wyvern), verursacht die Drachenbrühe Energieschaden.</p>
-<p><b>Auf Stufe 2:</b> Der Schaden steigt auf 4W6.</p>
-<p><b>Auf Stufe 3:</b> Der Schaden steigt auf 6W6.</p>]],
+<p><b>Auf Stufe 2:</b> Der Schaden steigt auf 4W10.</p>
+<p><b>Auf Stufe 3:</b> Der Schaden steigt auf 6W10.</p>]],
 		alchemistenfeuer = [[<h>Alchemistenfeuer</h>
 <p><i>Benötigt Elementar-Materialien</i></p>
-<p>Als Bonusaktion kannst du Alchemistenfeuer bis zu 20 ft. weit werfen. Führe einen Fernkampfangriff gegen eine Kreatur oder ein Objekt aus. Du kannst deinen Übungsbonus für diesen Angriff verwenden. Bei einem Treffer erleidet das Ziel zu Beginn jeder seiner Runden 1d8 Schaden der dem Element des Elementars entspricht von dem du das Material erhalten hast. Eine Kreatur kann diesen Schaden beenden, indem sie ihre Aktion nutzt, um einen Geschicklichkeitsrettungswurf zu machen, um die Flammen zu löschen.</p>
-<p><b>Auf Stufe 2:</b> Der Schaden steigt auf 2d8.</p>
-<p><b>Auf Stufe 3:</b> Der Schaden steigt auf 3d8.</p>]],
+<p>Als Bonusaktion kannst du Alchemistenfeuer bis zu 20 ft. weit werfen. Führe einen Fernkampfangriff gegen eine Kreatur oder ein Objekt aus. Du kannst deinen Übungsbonus für diesen Angriff verwenden. Bei einem Treffer erleidet das Ziel zu Beginn jeder seiner Runden 1W8 Schaden der dem Element des Elementars entspricht von dem du das Material erhalten hast. Eine Kreatur kann diesen Schaden beenden, indem sie ihre Aktion nutzt, um einen Geschicklichkeitsrettungswurf zu machen, um die Flammen zu löschen.</p>
+<p><b>Auf Stufe 2:</b> Der Schaden steigt auf 2W8.</p>
+<p><b>Auf Stufe 3:</b> Der Schaden steigt auf 3W8.</p>]],
 		wutpulver = [[<h>Wutpulver</h>
 <p><i>Benötigt Feenwesen-Materialien</i></p>
-<p>Als Aktion wirfst du das Wutpulver auf eine Kreatur innerhalb 5 ft. von dir. Sie muss einen Weisheitsrettungswurf ablegen. Bei einem Fehlschlag wird sie bezaubert und von tiefstem Zorn erfüllt. Zu Beginn jedes ihrer nächsten Züge muss eine betroffene Kreatur ihren Zug nutzen, um einem zufälligen Verbündeten möglichst viel Schaden zuzufügen. Kann keiner Kreatur Schaden zugefügt werden, tut sie in ihrem Zug nichts.</p>
+<p>Als Aktion wirfst du das Wutpulver auf eine Kreatur innerhalb 5 ft. von dir. Sie muss einen Weisheitsrettungswurf ablegen. Bei einem Fehlschlag wird sie bezaubert und von tiefstem Zorn erfüllt. Zu Beginn jedes ihrer nächsten Züge muss eine betroffene Kreatur ihren Zug nutzen, um dem am nächsten stehenden Verbündeten Schaden zuzufügen. Kann keiner Kreatur Schaden zugefügt werden, tut sie in ihrem Zug nichts.</p>
 <p><b>Auf Stufe 2:</b> Die Reichweite des Wutpulvers steigt auf 30 ft.</p>
 <p><b>Auf Stufe 3:</b> Die Reichweite des Wutpulvers steigt auf 90 ft.</p>]],
 		goetterfackel = [[<h>Götterfackel</h>
@@ -697,17 +697,17 @@ function getCraftedItemDescription(sItemKey, nLevel)
 <p><b>Auf Stufe 3:</b> Der Radius des Fackelscheins steigt auf 40 ft.</p>]],
 		menschlichkeit = [[<h>Menschlichkeit</h>
 <p><i>Benötigt Humanoider-Materialien</i></p>
-<p>Als Bonusaktion kannst du die Menschlichkeit auf eine beliebige Kreatur innerhalb 120 ft. anwenden. Wähle ein beliebiges Attribut. Die Kreatur muss den dazugehörigen Rettungswurf schaffen oder ihr Attributswert wird auf 10 gesetzt. Der Effekt dauert 1 Minute an. Eine Kreatur kann ihre Aktion verwenden, um den Rettungswurf zu wiederholen und den Effekt bei Erfolg zu beenden.</p>
+<p>Als Aktion kannst du die Menschlichkeit auf eine beliebige Kreatur innerhalb 120 ft. anwenden. Wähle ein beliebiges Attribut. Die Kreatur muss den dazugehörigen Rettungswurf schaffen oder ihr Attributswert wird auf 10 gesetzt. Der Effekt dauert 1 Minute an. Eine Kreatur kann ihre Aktion verwenden, um den Rettungswurf zu wiederholen und den Effekt bei Erfolg zu beenden.</p>
 <p><b>Auf Stufe 2:</b> Du kannst bis zu zwei Kreaturen auswählen.</p>
 <p><b>Auf Stufe 3:</b> Du kannst bis zu drei Kreaturen auswählen.</p>]],
 		systemschock = [[<h>Systemschock</h>
 <p><i>Benötigt Konstrukt-Materialien</i></p>
-<p>Als Bonusaktion rufst du einen Systemschock bei Kreaturen in einem von dir ausgehenden 15 ft.-Kegel hervor. Jede Kreatur muss einen Geschicklichkeitsrettungswurf schaffen oder erhält einen Malus von -2 auf ihre Rüstungsklasse. Jeder Angriff auf eine betroffene Kreatur verringert den Malus um 1.</p>
+<p>Als Aktion rufst du einen Systemschock bei Kreaturen in einem von dir ausgehenden 15 ft.-Kegel hervor. Jede Kreatur muss einen Geschicklichkeitsrettungswurf schaffen oder erhält einen Malus von -2 auf ihre Rüstungsklasse. Jeder Angriff auf eine betroffene Kreatur verringert den Malus um 1.</p>
 <p><b>Auf Stufe 2:</b> Der Malus beginnt bei -3.</p>
 <p><b>Auf Stufe 3:</b> Der Malus beginnt bei -4.</p>]],
 		berserkerdunst = [[<h>Berserkerdunst</h>
 <p><i>Benötigt Monströsität-Materialien</i></p>
-<p>Als Aktion verstreust du den Berserkerdunst in einem von dir ausgehenden 10 ft.-Kegel. Alle Kreaturen in diesem Bereich müssen einen Weisheitsrettungswurf ablegen. Bei einem Fehlschlag werden sie von Blutrünstigkeit erfüllt. Fügt sie einer anderen Kreatur Schaden zu, erleidet sie selbst den gleiche Menge an Schaden. Der Effekt dauert 1 Minute an. Eine Kreatur kann ihre Aktion verwenden, um den Effekt zu beenden.</p>
+<p>Als Aktion verstreust du den Berserkerdunst in einem von dir ausgehenden 10 ft.-Kegel. Alle Kreaturen in diesem Bereich müssen einen Weisheitsrettungswurf ablegen. Bei einem Fehlschlag werden sie von Blutrünstigkeit erfüllt. Fügt sie einer anderen Kreatur Schaden zu, erleidet sie selbst die Hälfte des ausgeteilten Schadens. Der Effekt dauert 1 Minute an. Eine Kreatur kann ihre Aktion verwenden, um den Effekt zu beenden.</p>
 <p><b>Auf Stufe 2:</b> Die Dimensionen des Kegels steigen auf 20 ft.</p>
 <p><b>Auf Stufe 3:</b> Die Dimensionen des Kegels steigen auf 30 ft.</p>]],
 		egelsamen = [[<h>Egelsamen</h>
@@ -717,7 +717,7 @@ function getCraftedItemDescription(sItemKey, nLevel)
 <p><b>Auf Stufe 3:</b> Du kannst bis zu drei Kreaturen auswählen. Benutzt du in Folgezügen deine Bonusaktion dafür, müssen alle betroffenen Kreaturen den Rettungswurf wiederholen.</p>]],
 		hehrgas = [[<h>Hehrgas</h>
 <p><i>Benötigt Riese-Materialien</i></p>
-<p>Als Bonusaktion kannst du Hehrgas bis zu 20 ft. weit werfen. Führe einen Fernkampfangriff gegen eine Kreatur aus. Du kannst deinen Übungsbonus für diesen Angriff verwenden. Bei einem Treffer wird der Kreatur tiefste Ehrfurcht eingeflößt. Greift sie dich oder einen deiner Verbündeten an, muss sie einen Weisheitsrettungswurf ablegen. Bei einem Fehlschlag trifft sie automatisch nicht. Zusätzlich fügen sämtliche ihrer Angriffe -1W4 Schaden zu.</p>
+<p>Als Aktion kannst du Hehrgas bis zu 20 ft. weit werfen. Führe einen Fernkampfangriff gegen eine Kreatur aus. Du kannst deinen Übungsbonus für diesen Angriff verwenden. Bei einem Treffer wird der Kreatur tiefste Ehrfurcht eingeflößt. Greift sie dich oder einen deiner Verbündeten an, muss sie einen Weisheitsrettungswurf ablegen. Bei einem Fehlschlag trifft sie automatisch nicht. Zusätzlich fügen sämtliche ihrer Angriffe -1W4 Schaden zu. Der Effekt dauert 3 Runden an.</p>
 <p><b>Auf Stufe 2:</b> Der Schadensmalus steigt auf -2W4.</p>
 <p><b>Auf Stufe 3:</b> Der Schadensmalus steigt auf -3W4.</p>]],
 		schlitterseife = [[<h>Schlitterseife</h>
