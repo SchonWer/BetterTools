@@ -1,6 +1,5 @@
 function getToolText()
 	return [[<formattedtext>
-<h>Schmiedewerkzeug</h>
 <p><i>Genutztes Attribut: Stärke</i></p>
 <p>Übung mit Schmiedewerkzeug ermöglicht es dir, Waffen und Rüstungen selbst herzustellen und sogar magische Gegenstände zu kreieren, solange sie aus Metall bestehen.</p>
 <p>Schmiedewerkzeug enthält Hämmer, Zangen, Kohle, Lappen, einen 20 Pfund schweren Amboss und einen Wetzstein. Es wiegt 28 Pfund und kostet 20 Gold.</p>

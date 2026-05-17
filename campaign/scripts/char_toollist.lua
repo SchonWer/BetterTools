@@ -3,7 +3,7 @@ local _bInitialized = false;
 local _tDefaultTools = {
 	{ name = "Schmiedewerkzeug", stat = "strength", tooltype = "smithing" },
 	{ name = "Malerutensilien", stat = "dexterity" },
-	{ name = "Freizeitset", stat = "" },
+	{ name = "Freizeitset", stat = "", tooltype = "leisure" },
 	{ name = "Gerberwerkzeug", stat = "constitution" },
 	{ name = "Handwerkerausrüstung", stat = "strength" },
 	{ name = "Navigationsausrüstung", stat = "wisdom" },

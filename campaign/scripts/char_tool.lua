@@ -47,6 +47,8 @@ function getToolType()
 		return "herbalism";
 	elseif sName == "Alchemistenausrüstung" then
 		return "alchemy";
+	elseif sName == "Freizeitset" then
+		return "leisure";
 	end
 	return "";
 end
@@ -71,6 +73,10 @@ function openToolLink()
 	end
 	if sToolType == "alchemy" then
 		self.openAlchemyToolWindow();
+		return;
+	end
+	if sToolType == "leisure" then
+		self.openLeisureToolWindow();
 		return;
 	end
 
@@ -126,6 +132,16 @@ function openAlchemyToolWindow()
 	DB.setValue(nodeAlchemy, "text", "formattedtext", BetterToolsAlchemyManager.getToolText());
 	BetterToolsAlchemyManager.ensureDefaultRows(nodeAlchemy);
 	Interface.openWindow("bettertools_alchemy", nodeAlchemy);
+end
+
+function openLeisureToolWindow()
+	local nodeTool = getDatabaseNode();
+	local nodeChar = DB.getChild(nodeTool, "...");
+	local nodeLeisure = DB.createChild(nodeChar, "bettertools.leisure");
+	DB.setValue(nodeLeisure, "name", "string", "Freizeitset");
+	DB.setValue(nodeLeisure, "text", "formattedtext", BetterToolsLeisureManager.getToolText());
+	BetterToolsLeisureManager.ensureDefaultRows(nodeLeisure);
+	Interface.openWindow("bettertools_leisure", nodeLeisure);
 end
 
 function action(draginfo)

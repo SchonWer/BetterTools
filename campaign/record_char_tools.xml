@@ -1601,6 +1601,299 @@
 		</tab>
 	</windowclass>
 
+	<windowclass name="bettertools_leisure" copy="record_window">
+		<placement>
+			<size width="760" height="840" />
+		</placement>
+		<sheetdata>
+			<sub_content_framed_groupbox name="content">
+				<class>bettertools_leisure_contents</class>
+			</sub_content_framed_groupbox>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_leisure_contents">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				BetterToolsLeisureManager.ensureDefaultRows(getDatabaseNode());
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				WindowManager.callSafeControlsSetLockMode(self, { "region_iadd", }, bReadOnly);
+				for _, w in pairs(activities.getWindows()) do
+					if w.onLockModeChanged then
+						w.onLockModeChanged(bReadOnly);
+					end
+				end
+				for _, w in pairs(list.getWindows()) do
+					if w.onLockModeChanged then
+						w.onLockModeChanged(bReadOnly);
+					end
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<label_charframetop name="activity_header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="2" />
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+				<icons>forge_item_tool</icons>
+				<static text="Spiele / Instrumente" />
+			</label_charframetop>
+			<list_content_labeled_alternating_top name="activities">
+				<anchored height="120">
+					<left offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<datasource>.activities</datasource>
+				<class>bettertools_leisure_activity</class>
+				<sortby><control>order</control></sortby>
+			</list_content_labeled_alternating_top>
+
+			<label_charframetop name="region_header">
+				<anchored to="activities" height="20">
+					<top anchor="bottom" relation="relative" offset="18" />
+					<left offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<static text="Regionen" />
+			</label_charframetop>
+			<button_iadd name="region_iadd">
+				<anchored to="region_header" position="insidetopright" offset="5,0" />
+				<target>list</target>
+			</button_iadd>
+			<list_content_labeled_alternating_top name="list">
+				<anchored height="150">
+					<top parent="region_header" anchor="bottom" relation="relative" offset="24" />
+					<left offset="5" />
+					<right offset="-5" />
+				</anchored>
+				<datasource>.regions</datasource>
+				<class>bettertools_leisure_region</class>
+				<sortby><control>name</control></sortby>
+			</list_content_labeled_alternating_top>
+
+			<anchor_list_content_label_left />
+			<anchor_list_content_label_right />
+			<spacer_list_content_button_label_left name="region_idelete_header" />
+			<spacer_list_content_button_checkbox_label_left name="region_selected_header" />
+			<label_list_content_string_noframe_left name="region_name_header">
+				<anchored width="220" />
+				<static text="Region" />
+			</label_list_content_string_noframe_left>
+			<label_list_content_number_left name="region_fame_header">
+				<anchored width="78" />
+				<static text="Ruhm" />
+			</label_list_content_number_left>
+			<label_list_content_string_noframe_left name="region_rank_header">
+				<anchored width="143" />
+				<static text="Bekanntheit" />
+			</label_list_content_string_noframe_left>
+			<label_list_content_number_left name="region_recognition_header">
+				<anchored width="120" />
+				<static text="Erkennungs-SG" />
+			</label_list_content_number_left>
+
+			<ft_content_noframe_noscroll_top name="text">
+				<anchored>
+					<top parent="list" anchor="bottom" relation="relative" offset="26" postoffset="0" />
+				</anchored>
+			</ft_content_noframe_noscroll_top>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_leisure_activity">
+		<placement>
+			<size width="650" height="24" />
+		</placement>
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				BetterToolsLeisureManager.updateActivity(getDatabaseNode());
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				idelete.setVisible(false);
+				category_button.setVisible(not bReadOnly);
+				category_button.setEnabled(not bReadOnly);
+			end
+			function play()
+				BetterToolsLeisureManager.performPlay(getDatabaseNode());
+			end
+			function chooseCategory()
+				BetterToolsLeisureManager.openCategoryPicker(getDatabaseNode());
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<numberfield name="order">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+			</numberfield>
+			<stringfield name="category">
+				<bounds>0,0,0,0</bounds>
+				<invisible />
+				<script>function onValueChanged() BetterToolsLeisureManager.updateActivity(window.getDatabaseNode()); end</script>
+			</stringfield>
+			<button_listitem_idelete_left name="idelete" />
+			<button_text name="category_button">
+				<anchored to="leftanchor" width="24" height="20">
+					<top />
+					<left relation="relative" offset="2" postoffset="2" />
+				</anchored>
+				<state text="..." />
+				<script>
+					function onButtonPress()
+						window.chooseCategory();
+					end
+				</script>
+			</button_text>
+			<genericcontrol name="categorylabel_locked_spacer">
+				<anchored to="leftanchor" width="24" height="20">
+					<top />
+					<left relation="relative" offset="2" postoffset="2" />
+				</anchored>
+			</genericcontrol>
+			<button_listitem_roll_left name="play_button">
+				<anchored to="categorylabel_locked_spacer" position="righthigh" offset="8,0" width="20" height="20" />
+				<tooltip text="In der ausgew&#228;hlten Region spielen" />
+				<script>
+					function onButtonPress()
+						window.play();
+					end
+				</script>
+			</button_listitem_roll_left>
+			<stringu name="categorylabel">
+				<anchored to="play_button" position="righthigh" offset="8,0" width="220" height="20" />
+				<readonly />
+				<nodrag />
+			</stringu>
+			<stringu name="abilitylabel">
+				<anchored to="categorylabel" position="righthigh" offset="6,0" width="145" height="20" />
+				<readonly />
+				<nodrag />
+			</stringu>
+			<number_listitem_left name="bonus">
+				<anchored to="abilitylabel" position="righthigh" offset="6,0" width="60" height="20" />
+				<readonly />
+				<nodrag />
+			</number_listitem_left>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_leisure_category_picker" copy="record_window">
+		<placement>
+			<size width="560" height="315" />
+		</placement>
+		<sizelimits>
+			<minimum width="560" height="315" />
+		</sizelimits>
+		<script>
+			function choose(sCategory)
+				local nodeActivity = DB.findNode(DB.getValue(getDatabaseNode(), "targetpath", ""));
+				BetterToolsLeisureManager.chooseCategory(nodeActivity, sCategory);
+				close();
+			end
+			function onClose()
+				if DB.deleteNode then
+					pcall(DB.deleteNode, getDatabaseNode());
+				end
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<label name="games_header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="10" />
+					<left offset="22" />
+					<right offset="-292" />
+				</anchored>
+				<static text="Spiele" />
+			</label>
+			<label name="instruments_header">
+				<anchored to="games_header" position="righthigh" offset="24,0" width="248" height="20" />
+				<static text="Instrumente" />
+			</label>
+			<button_text name="pick_strength_games"><anchored to="games_header" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="(STR) Kraftspiele" /><script>function onButtonPress() window.choose("strength_games"); end</script></button_text>
+			<button_text name="pick_strength_instruments"><anchored to="instruments_header" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="(STR) Schlaginstrumente" /><script>function onButtonPress() window.choose("strength_instruments"); end</script></button_text>
+			<button_text name="pick_dexterity_games"><anchored to="pick_strength_games" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="(DEX) Geschicklichkeitsspiele" /><script>function onButtonPress() window.choose("dexterity_games"); end</script></button_text>
+			<button_text name="pick_dexterity_instruments"><anchored to="pick_strength_instruments" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="(DEX) Zupfinstrumente" /><script>function onButtonPress() window.choose("dexterity_instruments"); end</script></button_text>
+			<button_text name="pick_constitution_games"><anchored to="pick_dexterity_games" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="(CON) Gesellschaftsspiele" /><script>function onButtonPress() window.choose("constitution_games"); end</script></button_text>
+			<button_text name="pick_constitution_instruments"><anchored to="pick_dexterity_instruments" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="(CON) Blasinstrumente" /><script>function onButtonPress() window.choose("constitution_instruments"); end</script></button_text>
+			<button_text name="pick_intelligence_games"><anchored to="pick_constitution_games" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="(INT) Strategiespiele" /><script>function onButtonPress() window.choose("intelligence_games"); end</script></button_text>
+			<button_text name="pick_intelligence_instruments"><anchored to="pick_constitution_instruments" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="(INT) Streichinstrumente" /><script>function onButtonPress() window.choose("intelligence_instruments"); end</script></button_text>
+			<button_text name="pick_wisdom_games"><anchored to="pick_intelligence_games" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="(WIS) Deduktionsspiele" /><script>function onButtonPress() window.choose("wisdom_games"); end</script></button_text>
+			<button_text name="pick_wisdom_instruments"><anchored to="pick_intelligence_instruments" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="(WIS) Tasteninstrumente" /><script>function onButtonPress() window.choose("wisdom_instruments"); end</script></button_text>
+			<button_text name="pick_charisma_games"><anchored to="pick_wisdom_games" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="(CHA) Gl&#252;cksspiele" /><script>function onButtonPress() window.choose("charisma_games"); end</script></button_text>
+			<button_text name="pick_charisma_instruments"><anchored to="pick_wisdom_instruments" height="22"><top anchor="bottom" relation="relative" offset="8" /><left /><right /></anchored><state text="(CHA) Exotikinstrumente" /><script>function onButtonPress() window.choose("charisma_instruments"); end</script></button_text>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_leisure_region">
+		<placement>
+			<size width="650" height="24" />
+		</placement>
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				BetterToolsLeisureManager.updateRegion(getDatabaseNode());
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				idelete.setVisible(not bReadOnly);
+				idelete_spacer.setVisible(bReadOnly);
+				name.setReadOnly(bReadOnly);
+				fame.setReadOnly(bReadOnly);
+			end
+			function select()
+				BetterToolsLeisureManager.selectRegion(getDatabaseNode());
+			end
+		</script>
+		<sheetdata>
+			<anchor_listitem_left_sm />
+			<anchor_listitem_right_sm />
+
+			<button_listitem_idelete_left name="idelete" />
+			<spacer_listitem_idelete_left name="idelete_spacer" />
+			<button_listitem_checkbox_left name="selected">
+				<tooltip text="Aktuelle Spielregion" />
+				<script>
+					function onValueChanged()
+						if getValue() == 1 then
+							window.select();
+						end
+					end
+				</script>
+			</button_listitem_checkbox_left>
+			<string_listitem_left_underline name="name">
+				<anchored width="220" />
+			</string_listitem_left_underline>
+			<number_listitem_left name="fame">
+				<anchored width="78" />
+				<nodrag />
+				<script>function onValueChanged() BetterToolsLeisureManager.updateRegion(window.getDatabaseNode()); end</script>
+			</number_listitem_left>
+			<string_listitem_left_underline name="rank">
+				<anchored width="143" />
+				<readonly />
+				<nodrag />
+			</string_listitem_left_underline>
+			<number_listitem_left name="recognitiondc">
+				<anchored width="120" />
+				<readonly />
+				<nodrag />
+			</number_listitem_left>
+		</sheetdata>
+	</windowclass>
+
 	<windowclass name="charsheet_tools">
 		<sheetdata>
 			<anchor_content_top />
