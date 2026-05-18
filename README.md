@@ -9,6 +9,7 @@ Sie fügt dem Charakterbogen einen Tools-Tab hinzu und integriert **Homebrew**-T
 - Implementierung für Schmiedeausrüstung
 - Implementierung für Kräuterkundeausrüstung
 - Implementierung für Alchemistenausrüstung
+- Implementierung für Freizeitset
 
 ## Installation
 1. `BetterTools.ext` herunterladen.
