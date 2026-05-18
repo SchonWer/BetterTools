@@ -1620,7 +1620,7 @@
 				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
 			end
 			function onLockModeChanged(bReadOnly)
-				WindowManager.callSafeControlsSetLockMode(self, { "region_iadd", }, bReadOnly);
+				WindowManager.callSafeControlsSetLockMode(self, { "region_iadd" }, bReadOnly);
 				for _, w in pairs(activities.getWindows()) do
 					if w.onLockModeChanged then
 						w.onLockModeChanged(bReadOnly);
@@ -1631,6 +1631,12 @@
 						w.onLockModeChanged(bReadOnly);
 					end
 				end
+			end
+			function play()
+				BetterToolsLeisureManager.performSelectedPlay(getDatabaseNode());
+			end
+			function downtime()
+				BetterToolsLeisureManager.performDowntime(getDatabaseNode(), downtime_weeks.getValue());
 			end
 		</script>
 		<sheetdata>
@@ -1646,8 +1652,29 @@
 				<icons>forge_item_tool</icons>
 				<static text="Spiele / Instrumente" />
 			</label_charframetop>
+			<button_text name="play_button">
+				<anchored to="activity_header" position="belowleft" offset="0,6" width="78" height="20" />
+				<state text="Spielen" />
+				<script>function onButtonPress() window.play(); end</script>
+			</button_text>
+			<button_text name="downtime_button">
+				<anchored to="play_button" position="righthigh" offset="8,0" width="86" height="20" />
+				<state text="Downtime" />
+				<script>function onButtonPress() window.downtime(); end</script>
+			</button_text>
+			<number_listitem_left name="downtime_weeks">
+				<anchored to="downtime_button" position="righthigh" offset="8,0" width="34" height="20" />
+				<min value="0" />
+				<nodrag />
+				<tooltip text="Downtime-Wochen" />
+			</number_listitem_left>
+			<label name="downtime_weeks_label">
+				<anchored to="downtime_weeks" position="righthigh" offset="5,0" width="54" height="20" />
+				<static text="Wochen" />
+			</label>
 			<list_content_labeled_alternating_top name="activities">
-				<anchored height="120">
+				<anchored height="84">
+					<top parent="play_button" anchor="bottom" relation="relative" offset="6" />
 					<left offset="5" />
 					<right offset="-5" />
 				</anchored>
@@ -1658,7 +1685,7 @@
 
 			<label_charframetop name="region_header">
 				<anchored to="activities" height="20">
-					<top anchor="bottom" relation="relative" offset="18" />
+					<top anchor="bottom" relation="relative" offset="6" />
 					<left offset="5" />
 					<right offset="-5" />
 				</anchored>
@@ -1722,12 +1749,15 @@
 				idelete.setVisible(false);
 				category_button.setVisible(not bReadOnly);
 				category_button.setEnabled(not bReadOnly);
-			end
-			function play()
-				BetterToolsLeisureManager.performPlay(getDatabaseNode());
+				categorylabel_locked_spacer.setVisible(bReadOnly);
+				selected.setEnabled(true);
+				usecharisma.setEnabled(not bReadOnly);
 			end
 			function chooseCategory()
 				BetterToolsLeisureManager.openCategoryPicker(getDatabaseNode());
+			end
+			function select()
+				BetterToolsLeisureManager.selectActivity(getDatabaseNode());
 			end
 		</script>
 		<sheetdata>
@@ -1744,11 +1774,18 @@
 				<script>function onValueChanged() BetterToolsLeisureManager.updateActivity(window.getDatabaseNode()); end</script>
 			</stringfield>
 			<button_listitem_idelete_left name="idelete" />
+			<button_listitem_checkbox_left name="selected">
+				<tooltip text="Ausgew&#228;hltes Spiel / Instrument" />
+				<script>
+					function onValueChanged()
+						if getValue() == 1 then
+							window.select();
+						end
+					end
+				</script>
+			</button_listitem_checkbox_left>
 			<button_text name="category_button">
-				<anchored to="leftanchor" width="24" height="20">
-					<top />
-					<left relation="relative" offset="2" postoffset="2" />
-				</anchored>
+				<bounds>30,0,24,20</bounds>
 				<state text="..." />
 				<script>
 					function onButtonPress()
@@ -1757,32 +1794,25 @@
 				</script>
 			</button_text>
 			<genericcontrol name="categorylabel_locked_spacer">
-				<anchored to="leftanchor" width="24" height="20">
-					<top />
-					<left relation="relative" offset="2" postoffset="2" />
-				</anchored>
+				<bounds>30,0,24,20</bounds>
 			</genericcontrol>
-			<button_listitem_roll_left name="play_button">
-				<anchored to="categorylabel_locked_spacer" position="righthigh" offset="8,0" width="20" height="20" />
-				<tooltip text="In der ausgew&#228;hlten Region spielen" />
-				<script>
-					function onButtonPress()
-						window.play();
-					end
-				</script>
-			</button_listitem_roll_left>
 			<stringu name="categorylabel">
-				<anchored to="play_button" position="righthigh" offset="8,0" width="220" height="20" />
+				<bounds>64,0,245,20</bounds>
 				<readonly />
 				<nodrag />
 			</stringu>
 			<stringu name="abilitylabel">
-				<anchored to="categorylabel" position="righthigh" offset="6,0" width="145" height="20" />
+				<bounds>315,0,118,20</bounds>
 				<readonly />
 				<nodrag />
 			</stringu>
+			<button_listitem_checkbox_base name="usecharisma">
+				<bounds>446,0,20,20</bounds>
+				<tooltip text="Charisma als Barde verwenden" />
+				<script>function onValueChanged() BetterToolsLeisureManager.updateActivity(window.getDatabaseNode()); end</script>
+			</button_listitem_checkbox_base>
 			<number_listitem_left name="bonus">
-				<anchored to="abilitylabel" position="righthigh" offset="6,0" width="60" height="20" />
+				<bounds>474,0,60,20</bounds>
 				<readonly />
 				<nodrag />
 			</number_listitem_left>
