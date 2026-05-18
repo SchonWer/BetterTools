@@ -1,5 +1,6 @@
 local ROLL_TYPE = "bettertools_leisure_play";
 local MONEY_ROLL_TYPE = "bettertools_leisure_money";
+local RECORD_CATEGORY = "BetterTools";
 
 local _tCategoryOrder = {
 	"strength_games", "strength_instruments",
@@ -337,6 +338,7 @@ end
 function ensureArcanaTable(sRarity)
 	local nodeExisting = BetterToolsLeisureManager.findArcanaTable(sRarity);
 	if nodeExisting then
+		BetterToolsLeisureManager.setRecordCategory(nodeExisting);
 		return;
 	end
 
@@ -355,6 +357,7 @@ function ensureArcanaTable(sRarity)
 	end
 
 	DB.setValue(nodeTable, "name", "string", BetterToolsLeisureManager.getArcanaTableName(sRarity));
+	BetterToolsLeisureManager.setRecordCategory(nodeTable);
 	DB.setValue(nodeTable, "dice", "dice", { "d100" });
 	DB.setValue(nodeTable, "mod", "number", 0);
 	DB.setValue(nodeTable, "resultscols", "number", 1);
@@ -375,6 +378,14 @@ function ensureArcanaTable(sRarity)
 		local nodeResults = DB.createChild(nodeRow, "results");
 		local nodeResult = DB.createChild(nodeResults);
 		DB.setValue(nodeResult, "result", "string", tRow[3] or "");
+	end
+end
+
+function setRecordCategory(nodeRecord)
+	if nodeRecord then
+		if DB.setCategory then
+			DB.setCategory(nodeRecord, RECORD_CATEGORY);
+		end
 	end
 end
 

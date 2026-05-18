@@ -1,5 +1,6 @@
 local ROLL_TYPE = "bettertools_cooking_effect";
 local TEMP_HP_ROLL_TYPE = "bettertools_cooking_temphp";
+local RECORD_CATEGORY = "BetterTools";
 
 local _tRarityLabels = {
 	common = "Gewöhnlich",
@@ -513,7 +514,9 @@ function ensureEffectTables()
 end
 
 function ensureEffectTable(sRarity)
-	if BetterToolsCookingManager.findEffectTable(sRarity) then
+	local nodeExisting = BetterToolsCookingManager.findEffectTable(sRarity);
+	if nodeExisting then
+		BetterToolsCookingManager.setRecordCategory(nodeExisting);
 		return;
 	end
 
@@ -532,6 +535,7 @@ function ensureEffectTable(sRarity)
 	end
 
 	DB.setValue(nodeTable, "name", "string", BetterToolsCookingManager.getEffectTableName(sRarity));
+	BetterToolsCookingManager.setRecordCategory(nodeTable);
 	DB.setValue(nodeTable, "dice", "dice", { "d20" });
 	DB.setValue(nodeTable, "mod", "number", 0);
 	DB.setValue(nodeTable, "resultscols", "number", 2);
@@ -556,6 +560,14 @@ function ensureEffectTable(sRarity)
 
 		local nodeResultCode = DB.createChild(nodeResults);
 		DB.setValue(nodeResultCode, "result", "string", tEffect.code or "");
+	end
+end
+
+function setRecordCategory(nodeRecord)
+	if nodeRecord then
+		if DB.setCategory then
+			DB.setCategory(nodeRecord, RECORD_CATEGORY);
+		end
 	end
 end
 

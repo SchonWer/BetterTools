@@ -1,5 +1,7 @@
 ﻿local HARVEST_ROLL_TYPE = "bettertools_alchemy_harvest";
 
+local RECORD_CATEGORY = "BetterTools";
+
 local _tMaterialOrder = {
 	"aberration", "dragon", "elemental", "fey", "celestial", "humanoid", "construct",
 	"monstrosity", "plant", "giant", "ooze", "beast", "fiend", "undead",
@@ -428,6 +430,7 @@ function populateCraftedItemRecord(nodeItem, sItemKey, nLevel)
 		return;
 	end
 	DB.setValue(nodeItem, "name", "string", BetterToolsAlchemyManager.getCraftedItemName(sItemKey, nLevel));
+	BetterToolsAlchemyManager.setRecordCategory(nodeItem);
 	DB.setValue(nodeItem, "count", "number", 1);
 	DB.setValue(nodeItem, "isidentified", "number", 1);
 	DB.setValue(nodeItem, "locked", "number", 1);
@@ -437,6 +440,14 @@ function populateCraftedItemRecord(nodeItem, sItemKey, nLevel)
 	DB.setValue(nodeItem, "weight", "number", 0);
 	DB.setValue(nodeItem, "cost", "string", "");
 	DB.setValue(nodeItem, "description", "formattedtext", BetterToolsAlchemyManager.getCraftedItemDescription(sItemKey, nLevel));
+end
+
+function setRecordCategory(nodeRecord)
+	if nodeRecord then
+		if DB.setCategory then
+			DB.setCategory(nodeRecord, RECORD_CATEGORY);
+		end
+	end
 end
 
 function addCraftedItemToInventory(nodeChar, sItemKey, nLevel)
