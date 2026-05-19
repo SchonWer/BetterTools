@@ -50,7 +50,9 @@ local MATERIAL_UNITS_PER_ITEM = 6;
 
 function onInit()
 	ActionsManager.registerResultHandler(HARVEST_ROLL_TYPE, BetterToolsAlchemyManager.onHarvestRoll);
-	BetterToolsAlchemyManager.ensureCraftedItemRecords();
+	if Session.IsHost then
+		BetterToolsAlchemyManager.ensureCraftedItemRecords();
+	end
 end
 
 function getToolText()
@@ -374,6 +376,10 @@ function craftSelectedItem(nodeAlchemy)
 end
 
 function ensureCraftedItemRecords()
+	if not Session.IsHost then
+		return;
+	end
+
 	for _, sItemKey in ipairs(_tItemOrder) do
 		for nLevel = 1, 3 do
 			BetterToolsAlchemyManager.ensureCraftedItemRecord(sItemKey, nLevel);
@@ -417,7 +423,17 @@ function findCraftedItemRecord(sName)
 end
 
 function createCraftedItemRecord(sItemKey, nLevel)
-	local nodeItem = DB.createChild(BetterToolsAlchemyManager.getItemRoot());
+	if not Session.IsHost then
+		return nil;
+	end
+
+	local bCreated, nodeItem = pcall(DB.createChild, BetterToolsAlchemyManager.getItemRoot());
+	if not bCreated and BetterToolsAlchemyManager.getItemRoot() ~= "item" then
+		bCreated, nodeItem = pcall(DB.createChild, "item");
+	end
+	if not bCreated then
+		return nil;
+	end
 	if not nodeItem then
 		return nil;
 	end
@@ -445,7 +461,7 @@ end
 function setRecordCategory(nodeRecord)
 	if nodeRecord then
 		if DB.setCategory then
-			DB.setCategory(nodeRecord, RECORD_CATEGORY);
+			DB.setCategory(DB.getPath(nodeRecord), RECORD_CATEGORY);
 		end
 	end
 end

@@ -384,7 +384,7 @@ end
 function setRecordCategory(nodeRecord)
 	if nodeRecord then
 		if DB.setCategory then
-			DB.setCategory(nodeRecord, RECORD_CATEGORY);
+			DB.setCategory(DB.getPath(nodeRecord), RECORD_CATEGORY);
 		end
 	end
 end
@@ -477,12 +477,25 @@ function getRewardTableRecordName(sTableType)
 	return "";
 end
 
+function escapeFormattedTextXml(sValue)
+	sValue = tostring(sValue or "");
+	sValue = string.gsub(sValue, "&", "&amp;");
+	sValue = string.gsub(sValue, "<", "&lt;");
+	sValue = string.gsub(sValue, ">", "&gt;");
+	sValue = string.gsub(sValue, '"', "&quot;");
+	return sValue;
+end
+
 function getRewardTableLinksText()
 	local tLines = { "<p><b>Tabellen</b></p>", "<linklist>" };
 	for _, tTier in ipairs(_tItemRewardTiers) do
 		local sRecordName = BetterToolsLeisureManager.getRewardTableRecordName(tTier.tabletype);
 		if sRecordName ~= "" then
-			table.insert(tLines, string.format('<link class="table" recordname="%s"><b>Table: </b>%s</link>', sRecordName, tTier.label));
+			table.insert(tLines, string.format(
+				'<link class="table" recordname="%s"><b>Table: </b>%s</link>',
+				BetterToolsLeisureManager.escapeFormattedTextXml(sRecordName),
+				BetterToolsLeisureManager.escapeFormattedTextXml(tTier.label)
+			));
 		end
 	end
 	table.insert(tLines, "</linklist>");

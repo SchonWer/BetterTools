@@ -566,7 +566,7 @@ end
 function setRecordCategory(nodeRecord)
 	if nodeRecord then
 		if DB.setCategory then
-			DB.setCategory(nodeRecord, RECORD_CATEGORY);
+			DB.setCategory(DB.getPath(nodeRecord), RECORD_CATEGORY);
 		end
 	end
 end
