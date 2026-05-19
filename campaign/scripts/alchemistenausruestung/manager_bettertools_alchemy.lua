@@ -391,6 +391,9 @@ function ensureCraftedItemRecord(sItemKey, nLevel)
 	local tItem = _tItems[sItemKey] or _tItems.antiarkanum;
 	local sName = BetterToolsAlchemyManager.getCraftedItemName(sItemKey, nLevel);
 	local nodeItem = BetterToolsAlchemyManager.findCraftedItemRecord(sName);
+	if not Session.IsHost then
+		return nodeItem;
+	end
 	if not nodeItem then
 		nodeItem = BetterToolsAlchemyManager.createCraftedItemRecord(sItemKey, nLevel);
 	end
@@ -459,10 +462,14 @@ function populateCraftedItemRecord(nodeItem, sItemKey, nLevel)
 end
 
 function setRecordCategory(nodeRecord)
-	if nodeRecord then
-		if DB.setCategory then
-			DB.setCategory(DB.getPath(nodeRecord), RECORD_CATEGORY);
-		end
+	if not Session.IsHost or not nodeRecord then
+		return;
+	end
+	if DB.setCategory then
+		DB.setCategory(DB.getPath(nodeRecord), RECORD_CATEGORY);
+	end
+	if DB.setPublic then
+		DB.setPublic(nodeRecord, true);
 	end
 end
 
@@ -472,11 +479,8 @@ function addCraftedItemToInventory(nodeChar, sItemKey, nLevel)
 	end
 
 	local nodeSource = BetterToolsAlchemyManager.ensureCraftedItemRecord(sItemKey, nLevel);
-	if not nodeSource then
-		return nil;
-	end
-
-	local nodeExisting = BetterToolsAlchemyManager.findCraftedInventoryItem(nodeChar, DB.getValue(nodeSource, "name", ""));
+	local sName = nodeSource and DB.getValue(nodeSource, "name", "") or BetterToolsAlchemyManager.getCraftedItemName(sItemKey, nLevel);
+	local nodeExisting = BetterToolsAlchemyManager.findCraftedInventoryItem(nodeChar, sName);
 	if nodeExisting then
 		DB.setValue(nodeExisting, "count", "number", DB.getValue(nodeExisting, "count", 0) + 1);
 		return nodeExisting;
@@ -488,7 +492,11 @@ function addCraftedItemToInventory(nodeChar, sItemKey, nLevel)
 		return nil;
 	end
 
-	BetterToolsAlchemyManager.copyItemRecord(nodeSource, nodeItem);
+	if nodeSource then
+		BetterToolsAlchemyManager.copyItemRecord(nodeSource, nodeItem);
+	else
+		BetterToolsAlchemyManager.populateCraftedItemRecord(nodeItem, sItemKey, nLevel);
+	end
 	DB.setValue(nodeItem, "count", "number", 1);
 	DB.setValue(nodeItem, "carried", "number", 1);
 	return nodeItem;

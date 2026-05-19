@@ -564,10 +564,14 @@ function ensureEffectTable(sRarity)
 end
 
 function setRecordCategory(nodeRecord)
-	if nodeRecord then
-		if DB.setCategory then
-			DB.setCategory(DB.getPath(nodeRecord), RECORD_CATEGORY);
-		end
+	if not Session.IsHost or not nodeRecord then
+		return;
+	end
+	if DB.setCategory then
+		DB.setCategory(DB.getPath(nodeRecord), RECORD_CATEGORY);
+	end
+	if DB.setPublic then
+		DB.setPublic(nodeRecord, true);
 	end
 end
 
