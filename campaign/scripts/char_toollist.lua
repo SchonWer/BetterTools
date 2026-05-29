@@ -7,7 +7,7 @@ local _tDefaultTools = {
 	{ name = "Gerberwerkzeug", stat = "constitution", tooltype = "tanning" },
 	{ name = "Handwerkerausrüstung", stat = "strength" },
 	{ name = "Navigationsausrüstung", stat = "wisdom" },
-	{ name = "Stoff- & Schusterwerkzeug", stat = "dexterity" },
+	{ name = "Stoff- & Schusterwerkzeug", stat = "dexterity", tooltype = "clothier" },
 	{ name = "Juwelierwerkzeug", stat = "dexterity", tooltype = "jeweler" },
 	{ name = "Diebeswerkzeug", stat = "dexterity" },
 	{ name = "Fälschungsutensilien", stat = "intelligence" },
