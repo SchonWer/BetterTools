@@ -45,6 +45,8 @@ function getToolType()
 		return "smithing";
 	elseif sName == "Gerberwerkzeug" then
 		return "tanning";
+	elseif sName == "Juwelierwerkzeug" then
+		return "jeweler";
 	elseif sName == "Kräuterkundeausrüstung" then
 		return "herbalism";
 	elseif sName == "Alchemistenausrüstung" then
@@ -71,6 +73,10 @@ function openToolLink()
 	end
 	if sToolType == "tanning" then
 		self.openTanningToolWindow();
+		return;
+	end
+	if sToolType == "jeweler" then
+		self.openJewelerToolWindow();
 		return;
 	end
 	if sToolType == "herbalism" then
@@ -128,6 +134,15 @@ function openTanningToolWindow()
 	DB.setValue(nodeTanning, "name", "string", "Gerberwerkzeug");
 	DB.setValue(nodeTanning, "text", "formattedtext", BetterToolsTanningManager.getToolText());
 	Interface.openWindow("ref_ability", nodeTanning);
+end
+
+function openJewelerToolWindow()
+	local nodeTool = getDatabaseNode();
+	local nodeChar = DB.getChild(nodeTool, "...");
+	local nodeJeweler = DB.createChild(nodeChar, "bettertools.jeweler");
+	DB.setValue(nodeJeweler, "name", "string", "Juwelierwerkzeug");
+	DB.setValue(nodeJeweler, "text", "formattedtext", BetterToolsJewelerManager.getToolText());
+	Interface.openWindow("ref_ability", nodeJeweler);
 end
 
 function openHerbalismToolWindow()

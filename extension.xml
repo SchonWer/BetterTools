@@ -15,6 +15,7 @@
 		<script name="BetterToolsBrewingManager" file="campaign/scripts/brauerausruestung/manager_bettertools_brewing.lua" />
 		<script name="BetterToolsSmithingManager" file="campaign/scripts/schmiedewerkzeug/manager_bettertools_smithing.lua" />
 		<script name="BetterToolsTanningManager" file="campaign/scripts/gerberwerkzeug/manager_bettertools_tanning.lua" />
+		<script name="BetterToolsJewelerManager" file="campaign/scripts/juwelierutensilien/manager_bettertools_jeweler.lua" />
 		<script name="BetterToolsHerbalismManager" file="campaign/scripts/kraeuterkundeausruestung/manager_bettertools_herbalism.lua" />
 		<script name="BetterToolsAlchemyManager" file="campaign/scripts/alchemistenausruestung/manager_bettertools_alchemy.lua" />
 		<script name="BetterToolsLeisureManager" file="campaign/scripts/freizeitset/manager_bettertools_leisure.lua" />
