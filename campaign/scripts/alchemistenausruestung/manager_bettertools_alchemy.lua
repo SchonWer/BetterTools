@@ -69,7 +69,7 @@ function getToolText()
 <h>Materialbeschaffung</h>
 <p>Zusätzlich zu den Chemikalien, die du stets bei dir trägst, benötigst du für die Herstellung alchemistischer Gegenstände Monstermaterialien. Diese erhältst du, indem du getötete Monster ausweidest.</p>
 <h>Monster ausweiden</h>
-<p>Sobald eine Kreatur gestorben ist, kannst du einen Intelligenz (Alchemistenausrüstung)-Wurf ablegen, um sie auszuweiden. Diesen Wurf tätigst du für jeden auszuweidenden Kadaver. Pro Kadaver brauchst du 1 Minute für deine Arbeit.</p>
+<p>Sobald eine Kreatur gestorben ist, kannst du einen Intelligenz (Alchemistenausrüstung)-Wurf ablegen, um sie auszuweiden. Diesen Wurf tätigst du für nur einen der besiegten Gegner, wobei du dir diesen aussuchen kannst.</p>
 <p>Welche Materialien von einer Kreatur zu erhalten sind, ist von ihrem Typ abhängig und kann in der untenstehenden Tabelle eingesehen werden.</p>
 <p>Abhängig vom Ergebnis deines Wurfes erhältst du gewöhnliche oder seltenere Materialien. Je seltener das Material desto größer seine Potenz bei der Herstellung von Gegenständen.</p>
 <h>Monstermaterialien</h>
@@ -107,7 +107,7 @@ function getToolText()
 <p><b>Auf Stufe 3:</b> Der Schaden steigt auf 3W8.</p>
 <h>Wutpulver</h>
 <p><i>Benötigt Feenwesen-Materialien</i></p>
-<p>Als Aktion wirfst du das Wutpulver auf eine Kreatur innerhalb 5 ft. von dir. Sie muss einen Weisheitsrettungswurf ablegen. Bei einem Fehlschlag wird sie bezaubert und von tiefstem Zorn erfüllt. Zu Beginn jedes ihrer nächsten Züge muss eine betroffene Kreatur ihren Zug nutzen, um dem am nächsten stehenden Verbündeten Schaden zuzufügen. Kann keiner Kreatur Schaden zugefügt werden, tut sie in ihrem Zug nichts.</p>
+<p>Als Aktion wirfst du das Wutpulver auf eine Kreatur innerhalb 5 ft. von dir. Sie muss einen Weisheitsrettungswurf ablegen. Bei einem Fehlschlag wird sie bezaubert und von tiefstem Zorn erfüllt. Bis zu Beginn deines nächsten Zuges muss eine betroffene Kreatur ihren Zug nutzen, um dem am nächsten stehenden Verbündeten Schaden zuzufügen. Kann keiner Kreatur Schaden zugefügt werden, tut sie in ihrem Zug nichts.</p>
 <p><b>Auf Stufe 2:</b> Die Reichweite des Wutpulvers steigt auf 30 ft.</p>
 <p><b>Auf Stufe 3:</b> Die Reichweite des Wutpulvers steigt auf 90 ft.</p>
 <h>Götterfackel</h>
@@ -722,7 +722,7 @@ function getCraftedItemDescription(sItemKey, nLevel)
 <p><b>Auf Stufe 3:</b> Der Schaden steigt auf 3W8.</p>]],
 		wutpulver = [[<h>Wutpulver</h>
 <p><i>Benötigt Feenwesen-Materialien</i></p>
-<p>Als Aktion wirfst du das Wutpulver auf eine Kreatur innerhalb 5 ft. von dir. Sie muss einen Weisheitsrettungswurf ablegen. Bei einem Fehlschlag wird sie bezaubert und von tiefstem Zorn erfüllt. Zu Beginn jedes ihrer nächsten Züge muss eine betroffene Kreatur ihren Zug nutzen, um dem am nächsten stehenden Verbündeten Schaden zuzufügen. Kann keiner Kreatur Schaden zugefügt werden, tut sie in ihrem Zug nichts.</p>
+<p>Als Aktion wirfst du das Wutpulver auf eine Kreatur innerhalb 5 ft. von dir. Sie muss einen Weisheitsrettungswurf ablegen. Bei einem Fehlschlag wird sie bezaubert und von tiefstem Zorn erfüllt. Bis zu Beginn deines nächsten Zuges muss eine betroffene Kreatur ihren Zug nutzen, um dem am nächsten stehenden Verbündeten Schaden zuzufügen. Kann keiner Kreatur Schaden zugefügt werden, tut sie in ihrem Zug nichts.</p>
 <p><b>Auf Stufe 2:</b> Die Reichweite des Wutpulvers steigt auf 30 ft.</p>
 <p><b>Auf Stufe 3:</b> Die Reichweite des Wutpulvers steigt auf 90 ft.</p>]],
 		goetterfackel = [[<h>Götterfackel</h>
