@@ -1924,6 +1924,77 @@
 		</sheetdata>
 	</windowclass>
 
+	<windowclass name="bettertools_fishing" copy="record_window">
+		<placement>
+			<size width="760" height="620" />
+		</placement>
+		<sheetdata>
+			<sub_content_framed_groupbox name="content">
+				<class>bettertools_fishing_contents</class>
+			</sub_content_framed_groupbox>
+		</sheetdata>
+	</windowclass>
+
+	<windowclass name="bettertools_fishing_contents">
+		<margins control="0,0,0,2" />
+		<script>
+			function onInit()
+				self.onLockModeChanged(WindowManager.getWindowReadOnlyState(self));
+			end
+			function onLockModeChanged(bReadOnly)
+				shortrest_button.setVisible(true);
+				longrest_button.setVisible(true);
+			end
+			function fishShortRest()
+				BetterToolsFishingManager.performFishing(getDatabaseNode(), "short");
+			end
+			function fishLongRest()
+				BetterToolsFishingManager.performFishing(getDatabaseNode(), "long");
+			end
+		</script>
+		<sheetdata>
+			<anchor_content_top />
+			<anchor_content_bottom />
+
+			<label_charframetop name="fishing_header">
+				<anchored to="contentanchor" height="20">
+					<top relation="relative" offset="2" />
+					<left offset="10" />
+					<right offset="-10" />
+				</anchored>
+				<static text="Fischen" />
+			</label_charframetop>
+			<button_text name="shortrest_button">
+				<anchored to="fishing_header" height="20" width="100">
+					<top anchor="bottom" relation="relative" offset="8" />
+					<left offset="5" />
+				</anchored>
+				<state text="Kurze Rast" />
+				<script>
+					function onButtonPress()
+						window.fishShortRest();
+					end
+				</script>
+			</button_text>
+			<button_text name="longrest_button">
+				<anchored to="shortrest_button" position="righthigh" offset="8,0" width="100" height="20" />
+				<state text="Lange Rast" />
+				<script>
+					function onButtonPress()
+						window.fishLongRest();
+					end
+				</script>
+			</button_text>
+			<ft_content_noframe_noscroll_top name="text">
+				<anchored>
+					<top parent="shortrest_button" anchor="bottom" relation="relative" offset="16" postoffset="0" />
+					<left offset="5" />
+					<right offset="-5" />
+				</anchored>
+			</ft_content_noframe_noscroll_top>
+		</sheetdata>
+	</windowclass>
+
 	<windowclass name="charsheet_tools">
 		<sheetdata>
 			<anchor_content_top />

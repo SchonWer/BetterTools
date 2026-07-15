@@ -201,7 +201,7 @@ function openFishingToolWindow()
 	local nodeFishing = DB.createChild(nodeChar, "bettertools.fishing");
 	DB.setValue(nodeFishing, "name", "string", "Angelausrüstung");
 	DB.setValue(nodeFishing, "text", "formattedtext", BetterToolsFishingManager.getToolText());
-	Interface.openWindow("ref_ability", nodeFishing);
+	Interface.openWindow("bettertools_fishing", nodeFishing);
 end
 
 function action(draginfo)
