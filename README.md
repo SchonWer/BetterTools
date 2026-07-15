@@ -13,6 +13,7 @@ Sie fügt dem Charakterbogen einen Tools-Tab hinzu und integriert **Homebrew**-T
 - Implementierung für Gerberwerkzeug
 - Implementierung für Juwelierwerkzeug
 - Implementierung für Stoff- & Schusterwerkzeug
+- Implementierung für Angelausrüstung
 
 ## Installation
 1. `BetterTools.ext` herunterladen.
