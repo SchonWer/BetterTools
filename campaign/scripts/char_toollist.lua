@@ -17,7 +17,7 @@ local _tDefaultTools = {
 	{ name = "Brauerausrüstung", stat = "strength", tooltype = "brewing" },
 	{ name = "Alchemistenausrüstung", stat = "intelligence", tooltype = "alchemy" },
 	{ name = "Heilausrüstung", stat = "wisdom" },
-	{ name = "Angelausrüstung", stat = "strength" },
+	{ name = "Angelausrüstung", stat = "strength", tooltype = "fishing" },
 	{ name = "Giftmischerutensilien", stat = "intelligence" },
 	{ name = "Töpferutensilien", stat = "charisma" },
 	{ name = "Feinhandwerkutensilien", stat = "dexterity" },

@@ -55,6 +55,8 @@ function getToolType()
 		return "alchemy";
 	elseif sName == "Freizeitset" then
 		return "leisure";
+	elseif sName == "Angelausrüstung" then
+		return "fishing";
 	end
 	return "";
 end
@@ -95,6 +97,10 @@ function openToolLink()
 	end
 	if sToolType == "leisure" then
 		self.openLeisureToolWindow();
+		return;
+	end
+	if sToolType == "fishing" then
+		self.openFishingToolWindow();
 		return;
 	end
 
@@ -187,6 +193,15 @@ function openLeisureToolWindow()
 	DB.setValue(nodeLeisure, "text", "formattedtext", BetterToolsLeisureManager.getToolText());
 	BetterToolsLeisureManager.ensureDefaultRows(nodeLeisure);
 	Interface.openWindow("bettertools_leisure", nodeLeisure);
+end
+
+function openFishingToolWindow()
+	local nodeTool = getDatabaseNode();
+	local nodeChar = DB.getChild(nodeTool, "...");
+	local nodeFishing = DB.createChild(nodeChar, "bettertools.fishing");
+	DB.setValue(nodeFishing, "name", "string", "Angelausrüstung");
+	DB.setValue(nodeFishing, "text", "formattedtext", BetterToolsFishingManager.getToolText());
+	Interface.openWindow("ref_ability", nodeFishing);
 end
 
 function action(draginfo)

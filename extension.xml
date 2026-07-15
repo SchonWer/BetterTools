@@ -20,6 +20,7 @@
 		<script name="BetterToolsHerbalismManager" file="campaign/scripts/kraeuterkundeausruestung/manager_bettertools_herbalism.lua" />
 		<script name="BetterToolsAlchemyManager" file="campaign/scripts/alchemistenausruestung/manager_bettertools_alchemy.lua" />
 		<script name="BetterToolsLeisureManager" file="campaign/scripts/freizeitset/manager_bettertools_leisure.lua" />
+		<script name="BetterToolsFishingManager" file="campaign/scripts/angelausruestung/manager_bettertools_fishing.lua" />
 		<includefile source="campaign/record_char_tools.xml" />
 	</base>
 </root>
